@@ -30,7 +30,7 @@
             cursor: pointer;
         }
         .navigation a:hover {
-            font-weight: bold;
+            background: #333;
         }
         .menu-toggle {
             font-size: 30px;
@@ -152,6 +152,9 @@
         #user {
             font-size: 30px;
         }
+        .btn-group:hover {
+            background: #333;
+        }
     </style>
     {% block style %} {% endblock %}
 </head>
@@ -169,10 +172,10 @@
     </div>
     <div class="navigation rounded-end">
         <span class="btn-close btn-close-white"></span>
-        <a href="/dashboard" class="fw-bold"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <a href="/dashboard" class="fw-bold d-block"><i class="bi bi-speedometer2"></i> Dashboard</a>
         <hr class="text-white">
         <a href="/product" class="d-block"><i class="bi bi-box"></i> Product</a>
-        <div class="btn-group dropend">
+        <div class="btn-group dropend" style="width: inherit;">
             <a class="d-block dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-cart-plus-fill"></i> Purchase</a>
             <ul class="dropdown-menu dropdown-menu-dark">
                 <li><a class="dropdown-item" href="/purchase/add">Add Purchase <i class="bi bi-plus"></i></a></li>
@@ -180,7 +183,7 @@
             </ul>            
         </div>
         <a href="/stock" class="d-block"><i class="bi bi-archive"></i> Stock</a>
-        <div class="btn-group dropend">
+        <div class="btn-group dropend" style="width: inherit;">
             <a class="d-block dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-bag-check"></i> Order</a>
             <ul class="dropdown-menu dropdown-menu-dark">
                 <li><a class="dropdown-item" href="/sales">New Order</a></li>
@@ -188,7 +191,7 @@
             </ul>            
         </div>
         <a href="/expenses" class="d-block"><i class="bi bi-cash-stack"></i> Expenses</a>
-        <div class="btn-group dropend">
+        <div class="btn-group dropend" style="width: inherit;">
             <a class="d-block dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-file-earmark-bar-graph"> </i>Report</a>
             <ul class="dropdown-menu dropdown-menu-dark">
                 <li><a class="dropdown-item" href="/sales-report">Sales</a></li>
@@ -198,7 +201,7 @@
         </div>
         <hr class="text-white">
         <a href="/user" class="d-block"><i class="bi bi-person"></i> User</a>
-        <a href="/logout" class="d-block">Logout</a>
+        <a href="/logout" class="d-block"><i class="bi bi-box-arrow-right"></i> Logout</a>
         <hr class="text-white d-xl-none">
         <div class="d-flex d-xl-none flex-column-reverse position-absolute align-items-center text-white" style="top: 500px; left: 5px;">
             <span class="me-2 fw-semibold">{{ full_name }}</span>
