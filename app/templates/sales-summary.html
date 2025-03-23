@@ -1,0 +1,242 @@
+{% extends "dashboard.html" %}
+
+{% block title %} Sales Summary {% endblock %}
+
+{% block content %}
+    <div class="container-lg position-relative" style="width: 80dvh;">
+        <div class="row g-4 mt-3">
+            <div class="col-12 text-center fs-1 fw-bold text-primary">
+                Sales Summary
+            </div>
+            <div class="col-12">
+                <div class="row g-3" name="form">
+                    <div class="col-12">
+                        <label for="transactionDate" class="form-label fw-medium">Date <span class="text-danger">*</span></label>
+                        <input type="date" name="order_date" class="form-control" id="transactionDate" required readonly>
+                    </div>
+                    <div class="col-12">
+                        <label for="totalAmount" class="form-label fw-medium">Total Amount</label>
+                        <input type="text" name="total_amount" class="form-control" id="totalAmount" readonly>
+                    </div>
+                    <div class="col-12">
+                        <label for="attendant" class="form-label fw-medium">Attendant</label>
+                        <input type="text" name="user_email" class="form-control" id="attendant" value="{{ email }}" readonly>
+                    </div>
+                    <div class="col-12">
+                        <label for="customerEmail" class="form-label fw-medium">Email</label>
+                        <input name="customer_email" type="text" class="form-control" id="customerEmail">
+                    </div>
+                    <div class="col-12">
+                        <label for="customerName" class="form-label fw-medium">Customer Name</label>
+                        <input name="customer_name" type="text" class="form-control" id="customerName">
+                    </div>
+                    <div class="col-12">
+                        <label for="paymentMethod" class="form-label fw-medium">Payment Method <span class="text-danger">*</span></label>
+                        <input name="payment_method" type="text" class="form-control" id="paymentMethod" required>
+                        <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row g-3">
+                            <div class="col-12 text-center">
+                                <button class="btn btn-outline-success w-100" id="submitButton" style="width: 200px;">
+                                    <span id="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                                    <span id="buttonText">Make Payment</span>
+                                </button>
+                            </div>
+                            <div class="col-12 text-center mb-4">
+                                <button class="btn btn-outline-secondary w-100" id="backButton" style="width: 200px;">
+                                    <span id="spinnerCancel" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                                    <span id="buttonTextCancel">Cancel Transaction</span>
+                                </button>
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        document.getElementById('backButton').addEventListener('click', ()=>{
+            document.getElementById('opaque').classList.remove('d-none');
+
+            const spinnerCancel = document.getElementById('spinnerCancel');
+            const buttonTextCancel = document.getElementById('buttonTextCancel');
+        
+            spinnerCancel.classList.remove('d-none'); // Show spinner
+            buttonTextCancel.style.display = 'none'; // Hide text
+
+            window.location.href = "/sales";
+            localStorage.removeItem('cartCount');
+            localStorage.removeItem('data');
+            localStorage.removeItem('items');
+            localStorage.removeItem('total');
+        });
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            let total = JSON.parse(localStorage.getItem('total')) || 0;
+           document.getElementById('totalAmount').value = total; 
+           document.getElementById('transactionDate').value = new Date().toISOString().split('T')[0];          
+        });
+
+        const inputs = document.querySelectorAll('div[name="form"] input');
+        const requiredInputs = document.querySelectorAll('div[name="form"] input[required]');
+
+        const submitButton = document.getElementById('submitButton');
+
+        submitButton.addEventListener('click', async ()=>{
+            document.getElementById('opaque').classList.remove('d-none');
+            const spinner = document.getElementById('spinner');
+            const buttonText = document.getElementById('buttonText');
+        
+            spinner.classList.remove('d-none'); // Show spinner
+            buttonText.style.display = 'none'; // Hide text
+
+            let filteredRequiredInput = Array.from(requiredInputs).filter(requiredInput => requiredInput.value !== '');
+
+            if (filteredRequiredInput.length !== requiredInputs.length) {
+                document.getElementById('notice').innerHTML = "Please ensure all fields marked * are filled";
+                spinner.classList.add('d-none'); // Hide spinner
+                buttonText.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                return;
+            }else {
+                document.getElementById('notice').innerHTML = '';
+            }
+            
+            
+            let customerDetails = {};
+            let value
+            inputs.forEach(input=>{
+                if (input.value !== '') {
+                    let elementName = input.name;
+                    if (elementName === "total_amount") {
+                        value = input.value.trim().replace(/,/g, "");
+                    } else {
+                        value = input.value.toLocaleLowerCase().trim(); 
+                    }
+                    customerDetails[elementName] = value;
+                }
+            });
+
+            let items = JSON.parse(localStorage.getItem('items')) || [];
+            let updateItems = Array.from(items).map(item => {
+                return {
+                    'product_name': item.product_name,
+                    'price': item.price.replace(/,/g, ""),
+                    'quantity': item.quantity
+                };
+            });
+            let data = {'order': customerDetails, 'items': updateItems}
+
+            const url = "/sales/add";
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json()
+                    document.getElementById('notice').innerHTML = errorData.detail;
+                    spinner.classList.add('d-none'); // Hide spinner
+                    buttonText.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    return;
+                }
+
+                const result = await response.json();
+                localStorage.setItem('receipt', JSON.stringify(result.receipt));
+                printReceipt();
+                localStorage.removeItem('cartCount');
+                localStorage.removeItem('data');
+                localStorage.removeItem('items');
+                localStorage.removeItem('total');
+                localStorage.removeItem('receipt');
+                // alert(result.detail);
+                window.location.href = "/sales";
+            } catch (error) {
+                spinner.classList.add('d-none'); // Hide spinner
+                buttonText.style.display = ''; // Show text
+                alert(`Error: ${error}`);
+            }
+            
+        });
+
+        function printReceipt() {
+            const { jsPDF } = window.jspdf;
+
+            // Retrieve items from local storage
+            let items = JSON.parse(localStorage.getItem('items')) || [];
+            let receipt = JSON.parse(localStorage.getItem('receipt')) || 0;
+
+            // Estimate the required height dynamically
+            let baseHeight = 50; // Base header height
+            let rowHeight = 18; // Height per item row
+            let footerHeight = 20; // Space for total and signature
+            let receiptHeight = baseHeight + (items.length * rowHeight) + footerHeight;
+
+            // Create a custom-sized PDF (80mm width, dynamic height)
+            const pdf = new jsPDF({
+                orientation: "portrait",
+                unit: "mm",
+                format: [80, receiptHeight] // 80mm width, dynamic height
+            });
+
+            let startY = 10;
+
+            // Header
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(14);
+            pdf.text("Jackson Enterprise", 20, startY);
+            pdf.setFontSize(10);
+            pdf.setFont("helvetica", "normal");
+            pdf.text(`Receipt No: ${receipt}`, 10, startY + 8);
+            pdf.text(`Date: ${new Date().toLocaleDateString()}`, 10, startY + 14);
+
+            // Table Header
+            startY += 20;
+            pdf.setFont("helvetica", "bold");
+            pdf.text("Item", 5, startY);
+            pdf.text("Qty", 35, startY);
+            pdf.text("Price", 44, startY);
+            pdf.text("Amount", 58, startY);
+            pdf.setFont("helvetica", "normal");
+            pdf.line(5, startY + 2, 75, startY + 2); // Underline header
+
+            // Table rows
+            let totalAmount = 0;
+            startY += 6;
+            items.forEach((item) => {
+                let amount = Number(item.price.replace(/,/g, "")) * Number(item.quantity);
+                totalAmount += amount;
+
+                pdf.text(pdf.splitTextToSize(item.product_name, 28), 5, startY);
+                pdf.text(item.quantity.toString(), 35, startY);
+                pdf.text(Number(item.price.replace(/,/g, "")).toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2}), 40, startY);
+                pdf.text(amount.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2}), 59, startY);
+
+                startY += rowHeight; // Move down for next item
+            });
+
+            // Draw total line
+            pdf.line(5, startY, 75, startY);
+
+            // Total Amount
+            pdf.setFont("helvetica", "bold");
+            pdf.text(`Total: N${totalAmount.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2})}`, 35, startY + 8);
+
+            // Print PDF as a thermal receipt
+            pdf.autoPrint();
+            window.open(pdf.output("bloburl"), "_blank");
+        }
+
+    </script>
+{% endblock %}

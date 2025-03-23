@@ -1,0 +1,442 @@
+{% extends "dashboard.html" %}
+
+{% block title %} Sales Report {% endblock %}
+
+{% block content %}
+    {% if order_items %}
+        <div class="container-fluid position-relative">
+            <div class="row g-4">
+                <div class="col-12 col-xl-2">
+                    <span id="pdfButton" class="btn btn-outline-secondary" style="width: 150px;">PDF</span>
+                </div>
+                <div class="col-12 col-xl-2">
+                    <span id="receiptButton" class="btn btn-outline-secondary" style="width: 150px;">Receipt</span>
+                </div>
+                <div class="col-12 col-xl-4 d-flex flex-row">
+                    <span class="me-2 text-success fw-semibold d-flex align-items-center">Total Amount</span><div id="totalAmount" class="text-success fw-bold d-flex align-items-center" style="width: fit-content;">0</div>
+                </div>
+                <div class="col-12 col-xl-4 d-flex flex-row">
+                    <span class="me-2 text-success fw-semibold d-flex align-items-center">Total Quantity</span><div id="totalQuantity" class="text-success fw-bold d-flex align-items-center" style="width: fit-content;">0</div>
+                </div>
+                <div class="col-12 col-xl-4">
+                    <input id="dateSearch" type="text" class="form-control" placeholder="Date" aria-label="Date">
+                    <div id="notice2" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                </div>
+                <div class="col-12 col-xl-4">
+                    <input id="search" type="text" class="form-control" placeholder="receipt" aria-label="Search...">
+                </div>
+                <div class="col-12 col-xl-4">
+                    <button id="searchButton" class="btn btn-outline-secondary" style="width: 300px;">
+                        <span id="spinnerSearch" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                        <span id="buttonTextSearch" role="status">Search</span>
+                    </button>
+                </div>
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Receipt</th>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Payment Method</th>
+                                <th scope="col">Attendant</th>
+                                <th scope="col">Customer Name</th>                                
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Price</th>
+                                <th scope="col">Amount</th>
+                              </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                              {% for order_item in order_items %}
+                                <tr>
+                                    <th scope="row">{{ loop.index }}</th>
+                                    <td>{{ order_item.order.order_date }}</td>
+                                    <td>{{ order_item.order.id }}</td>
+                                    <td>{{ order_item.product.product_name }}</td>
+                                    <td>{{ order_item.order.payment_method }}</td>                                    
+                                    <td>{{ order_item.order.user.fullname }}</td>
+                                    <td>{{ order_item.order.customer_name if order_item.order.customer_name is not none else "N/A" }}</td>                                    
+                                    <td>{{ order_item.quantity }}</td>
+                                    <td>{{ "{:,.2f}".format(order_item.price) }}</td>
+                                    <td>{{ "{:,.2f}".format(order_item.price * order_item.quantity) }}</td>
+                                </tr>
+                              {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered sales</h3></div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+    <script>
+        const dateSearch = document.getElementById('dateSearch');
+        const search = document.getElementById('search');
+        const searchButton = document.getElementById('searchButton');
+        const totalAmount = document.getElementById('totalAmount');
+        const totalQuantity = document.getElementById('totalQuantity');
+
+        const yearPattern = /^\d{4}$/;  // YYYY
+        const yearMonthPattern = /^\d{4}-(0[1-9]|1[0-2])$/;  // YYYY-MM
+        const fullDatePattern = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/; // YYYY-MM-DD
+
+        function createTableFunction(tableArray) {
+            const tableCover = document.querySelector('.table-responsive');
+            tableCover.innerHTML = '';
+            let tableElement = document.createElement('table');
+            tableElement.classList.add('table', 'table-hover', 'align-middle');
+
+            const tableHead = document.createElement('thead');
+            tableHead.classList.add('table-dark');
+            tableHead.innerHTML = `
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Receipt</th>
+                    <th scope="col">Product Name</th>
+                    <th scope="col">Payment Method</th>
+                    <th scope="col">Attendant</th>
+                    <th scope="col">Customer Name</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Amount</th>
+                </tr>                    
+            `;
+
+            tableElement.appendChild(tableHead);
+
+            let tableBody = document.createElement('tbody');
+            tableBody.classList.add('table-group-divider');
+            
+
+            let html = '';
+            Array.from(tableArray).forEach((arr, index)=>{
+                html += `
+                    <tr>
+                        <th scope="row">${index + 1}</th>
+                        <td>${arr.order_date}</td>
+                        <td>${arr.order_id}</td>
+                        <td>${arr.product_name}</td>
+                        <td>${arr.payment_method}</td>
+                        <td>${arr.user}</td>
+                        <td>${arr.customer_name ?? "N/A"}</td>
+                        <td>${arr.quantity}</td>
+                        <td>${arr.price.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2})}</td>
+                        <td>${(arr.price * arr.quantity).toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2})}</td>
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = html;
+            tableElement.appendChild(tableBody);
+            tableCover.appendChild(tableElement);
+            summation();
+        }
+
+
+        
+        searchButton.addEventListener('click', async ()=>{
+            document.getElementById('opaque').classList.remove('d-none');
+            const spinnerSearch = document.getElementById('spinnerSearch');
+            const buttonTextSearch = document.getElementById('buttonTextSearch');
+            
+            spinnerSearch.classList.remove('d-none'); // Show spinner
+            buttonTextSearch.style.display = 'none'; // Hide text
+
+            const value = dateSearch.value;
+            if (value==='') {
+                document.getElementById('notice2').innerHTML = "Ensure the date field is filled";
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                return;
+            }else {
+                document.getElementById('notice2').innerHTML = '';
+            }
+
+            if (yearPattern.test(value) || yearMonthPattern.test(value) || fullDatePattern.test(value)) {
+                document.getElementById('notice2').innerHTML = '';
+            }else {
+                document.getElementById('notice2').innerHTML = "Enter a valid date";
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                return;
+            }
+            if (fullDatePattern.test(value)) {
+                const date = new Date(value);
+                const [year, month, day] = value.split('-').map(Number);
+                if (date.getMonth() + 1 === month) {
+                    document.getElementById('notice2').innerHTML = '';
+                } else {
+                    document.getElementById('notice2').innerHTML = "Enter a valid date";
+                    spinnerSearch.classList.add('d-none'); // Hide spinner
+                    buttonTextSearch.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    return;
+                }
+            }
+
+            const url = `/sales-data?date_str=${encodeURIComponent(value)}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`http error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                const tableArray = result.data;
+                dateSearch.value = '';
+                createTableFunction(tableArray);
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+
+            } catch (error) {
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                alert(error);
+            }               
+
+        });
+
+        function inputEventListenerFunction() {
+
+            dateSearch.addEventListener('input', ()=>{
+                const value1 = dateSearch.value.trim().toLocaleLowerCase();
+                const value2 = search.value.trim().toLocaleLowerCase();
+
+                activate(value1, value2);
+            });
+            search.addEventListener('input', ()=>{
+                const value1 = dateSearch.value.trim().toLocaleLowerCase();
+                const value2 = search.value.trim().toLocaleLowerCase();
+
+                activate(value1, value2);
+            });
+
+        }
+
+
+        function activate(value1, value2) {
+            let quantity = 0, amount = 0;
+            const bodyRows = document.querySelectorAll('tbody tr');
+            bodyRows.forEach(row=>{
+                const rowContent = Array.from(row.children).slice(1,5).map(td=>td.innerHTML.trim().toLocaleLowerCase()).join(' ');
+                const receiptRowContent = Array.from(row.children)[2].innerHTML.trim().toLocaleLowerCase();
+                if (value1 !== '' && value2 === '') {
+                    if (rowContent.includes(value1)) {
+                        row.style.display = '';
+
+                        const rowArray = Array.from(row.children);
+                        amount += parseFloat(rowArray[9].innerHTML.trim().replace(/,/g, ""),0) || 0; 
+                        quantity += parseInt(rowArray[7].innerHTML.trim(),0) || 0;
+                    }else {
+                        row.style.display = 'none';
+                    }  
+                }else if (value1 === '' && value2 !== '') {
+                    if (rowContent.includes(value2) && receiptRowContent===value2) {
+                        row.style.display = '';
+
+                        const rowArray = Array.from(row.children);
+                        amount += parseFloat(rowArray[9].innerHTML.trim().replace(/,/g, ""),0) || 0;
+                        quantity += parseInt(rowArray[7].innerHTML.trim(),0) || 0;
+                    }else {
+                        row.style.display = 'none';
+                    }  
+                }else if (value1 !== '' && value2 !== '') {
+                    if (rowContent.includes(value1) && rowContent.includes(value2) && receiptRowContent===value2) {
+                        row.style.display = '';
+
+                        const rowArray = Array.from(row.children);
+                        amount += parseFloat(rowArray[9].innerHTML.trim().replace(/,/g, ""),0) || 0;
+                        quantity += parseInt(rowArray[7].innerHTML.trim(),0) || 0;
+                    }else {
+                        row.style.display = 'none';
+                    }  
+                }else if (value1 === '' && value2 === '') {
+                    row.style.display = '';
+
+                    const rowArray = Array.from(row.children);
+                    amount += parseFloat(rowArray[9].innerHTML.trim().replace(/,/g, ""),0) || 0;
+                    quantity += parseInt(rowArray[7].innerHTML.trim(),0) || 0;
+                }
+            });
+
+            totalQuantity.innerHTML = quantity.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2});
+            totalAmount.innerHTML = amount.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2});
+        }
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            inputEventListenerFunction();
+            printPDF();
+            receiptFunction();
+            summation();
+        });
+
+        function summation() {
+            const bodyRows = document.querySelectorAll('tbody tr');
+            let quantity = 0, amount = 0;
+
+            bodyRows.forEach(row => {
+
+                const rowArray = Array.from(row.children);
+                amount += parseFloat(rowArray[9].innerHTML.trim().replace(/,/g, ""),0) || 0;
+                quantity += parseInt(rowArray[7].innerHTML.trim(),0) || 0;
+
+            });
+
+            totalQuantity.innerHTML = quantity.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2});
+            totalAmount.innerHTML = amount.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2});
+        }
+        function printPDF() {
+            document.getElementById('pdfButton').addEventListener('click', ()=>{
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: 'landscape' });
+                const headRow = document.querySelector('thead tr');
+                const bodyRows = document.querySelectorAll('tbody tr');
+
+                let columns = Array.from(headRow.children).map(th => th.innerHTML.trim());
+                let data = [];
+
+
+                const filteredBodyRows = Array.from(bodyRows).filter( row => {
+                    return window.getComputedStyle(row).display !== 'none';
+                });
+
+                let quantity = 0, amount = 0;
+
+                filteredBodyRows.forEach(row => {
+                    const rowArray = Array.from(row.children);
+                    amount += parseFloat(rowArray[9].innerHTML.trim().replace(/,/g, ""),0) || 0; 
+                    quantity += parseInt(rowArray[7].innerHTML.trim(),0) || 0;
+                });
+
+                pdf.text(`Total Amount: ${amount.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2})}`, 30, 50);
+                pdf.text(`Total Qantity: ${quantity.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2})}`, 30, 60);
+
+                filteredBodyRows.forEach(row=>{
+                    let rowValue = Array.from(row.children).map(td=> td.innerHTML.trim());
+                    data.push(rowValue);
+                });
+
+                pdf.text('sales report', 105, 30);
+
+                pdf.autoTable({
+                    head: [columns],
+                    body: data,
+                    startY: 80,
+                });
+                pdf.save('sales.pdf');
+
+            });
+        }
+
+        function receiptFunction() {
+            document.getElementById('receiptButton').addEventListener('click', ()=>{
+                printReceipt();
+            });
+        } 
+        
+
+        function printReceipt() {
+            const { jsPDF } = window.jspdf;
+
+            const rows = document.querySelectorAll('tbody tr');
+            const filteredRows = Array.from(rows).filter(row=>window.getComputedStyle(row).display !== 'none');
+            const receiptNumbers = filteredRows.map(row => Array.from(row.children)[2].innerHTML.trim());
+            const uniqueReceiptCount = new Set(receiptNumbers).size
+            if (uniqueReceiptCount !== 1) {
+                document.getElementById('notice2').innerHTML = "you can't print sales receipt for different receipt numbers";
+                return;
+            }else {
+                document.getElementById('notice2').innerHTML = '';
+            }
+            let items = [];
+
+            filteredRows.forEach(row => {
+                const rowValues = Array.from(row.children).map(td => td.innerHTML.trim());
+                items.push({
+                    'product_name': rowValues[3],
+                    'price': rowValues[8].replace(/,/g, ""),
+                    'quantity': rowValues[7],
+                    'amount': rowValues[9].replace(/,/g, "")
+                });
+            });
+
+             
+             // Estimate the required height dynamically
+            let baseHeight = 50; // Base header height
+            let rowHeight = 18; // Height per item row
+            let footerHeight = 20; // Space for total and signature
+            let receiptHeight = baseHeight + (items.length * rowHeight) + footerHeight;
+
+            // Create a custom-sized PDF (80mm width, dynamic height)
+            const pdf = new jsPDF({
+                orientation: "portrait",
+                unit: "mm",
+                format: [80, receiptHeight] // 80mm width, dynamic height
+            });
+
+            let startY = 10;
+
+            // Header
+            pdf.setFont("helvetica", "bold");
+            pdf.setFontSize(14);
+            pdf.text("Jackson Enterprise", 20, startY);
+            pdf.setFontSize(10);
+            pdf.setFont("helvetica", "normal");
+            pdf.text(`Receipt No: ${receiptNumbers[0]}`, 10, startY + 8);
+            pdf.text(`Date: ${new Date().toLocaleDateString()}`, 10, startY + 14);
+
+            // Table Header
+            startY += 20;
+            pdf.setFont("helvetica", "bold");
+            pdf.text("Item", 5, startY);
+            pdf.text("Qty", 35, startY);
+            pdf.text("Price", 44, startY);
+            pdf.text("Amount", 58, startY);
+            pdf.setFont("helvetica", "normal");
+            pdf.line(5, startY + 2, 75, startY + 2); // Underline header
+
+            // Table rows
+            let totalAmount = 0;
+            startY += 6;
+            items.forEach((item) => {
+                let amount = Number(item.price) * Number(item.quantity);
+                totalAmount += amount;
+
+                pdf.text(pdf.splitTextToSize(item.product_name, 28), 5, startY);
+                pdf.text(item.quantity.toString(), 35, startY);
+                pdf.text(Number(item.price).toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2}), 40, startY);
+                pdf.text(amount.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2}), 59, startY);
+
+                startY += rowHeight; // Move down for next item
+            });
+
+            // Draw total line
+            pdf.line(5, startY, 75, startY);
+
+            // Total Amount
+            pdf.setFont("helvetica", "bold");
+            pdf.text(`Total: N${totalAmount.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2})}`, 35, startY + 8);
+
+            // Print PDF as a thermal receipt
+            pdf.autoPrint();
+            window.open(pdf.output("bloburl"), "_blank");
+        }
+        
+
+
+    </script>   
+{% endblock %}

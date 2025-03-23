@@ -1,0 +1,162 @@
+{% extends "dashboard.html" %}
+
+{% block title %} Stock {% endblock %}
+
+{% block content %}
+    {% if stocks %}
+        <div class="container-fluid position-relative">
+            <div class="mb-5 text-secondary text-center"><h4 class="fw-bold fs-3">click on any update buttons to update stock</h4></div>
+            <div class="row g-4">
+                <div class="col-12 col-md-4">
+                    <input id="productNameSearch" type="text" class="form-control" placeholder="Product Name" aria-label="Product Name">
+                </div>
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Product Price</th>
+                                <th scope="col">Available Stock</th>
+                                <th scope="col">Alert Balance</th>
+                                <th scope="col"></th>
+                              </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                              {% for stock in stocks %}
+                                <tr>
+                                    <th scope="row">{{ loop.index }}</th>                                    
+                                    <td>{{ stock.product.product_name }}</td>
+                                    <td>{{ "{:,.2f}".format(stock.price) if stock.price is not none else 'n/a' }}</td>
+                                    <td>{{ stock.available_stock }}</td>
+                                    <td>{{ stock.alert_balance }}</td>
+                                    <td><span selector="updateButton" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#stock{{ stock.id }}">Update</span></td>                                              
+                                </tr>
+                              {% endfor %}
+                            </tbody>
+                        </table>
+                        {% for stock in stocks %}
+                            <!-- modal for stock update-->
+                            <div class="modal fade" id="stock{{ stock.id }}" tabindex="-1" aria-labelledby="stockLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="stockLabel">Update Stock</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="container-fluid">
+                                                <!-- modal form -->
+                                                <form class="row text-start g-3">                                        
+                                                    <div class="col-12">
+                                                        <label for="productName" class="form-label fw-medium">Product Name</label>
+                                                        <input type="text" name="product_name" class="form-control" id="productName" value="{{ stock.product.product_name }}" readonly>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label for="productPrice" class="form-label fw-medium">Product Price</label>
+                                                        <input type="number" step="0.01" name="price" class="form-control" id="productPrice">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label for="alertBalance" class="form-label fw-medium">Alert Balance</label>
+                                                        <input type="number" name="alert_balance" class="form-control" id="alertBalance">
+                                                        <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                                    </div>                                             
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">
+                                                <span element-name="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                                                <span element-name="buttonText">Submit</span>
+                                            </button>
+                                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered Stock</h3></div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+        <script>
+            const productNameSearch = document.getElementById('productNameSearch');
+            const bodyRows = document.querySelectorAll('tbody tr');
+            productNameSearch.addEventListener('input', ()=>{
+               
+                const value = productNameSearch.value.trim().toLocaleLowerCase();
+
+                activate(value);
+            });
+
+
+            function activate(value) {
+                
+                bodyRows.forEach(row=>{
+                    
+                    const productNameContent = Array.from(row.children)[1].innerHTML.trim().toLocaleLowerCase();
+
+
+                    if (value !== '') {
+                        if (productNameContent.includes(value)) {
+                            row.style.display = '';
+                        }else {
+                            row.style.display = 'none';
+                        }  
+                    }else if (value === '') {
+                        row.style.display = '';
+                    }
+                });
+            }
+
+
+            async function submitForm() {
+                document.getElementById('opaque').classList.remove('d-none');
+                const spinner = document.querySelector('div.modal.fade.show span[element-name="spinner"]');
+                const buttonText = document.querySelector('div.modal.fade.show span[element-name="buttonText"]');
+
+                spinner.classList.remove('d-none'); // Show spinner
+                buttonText.style.display = 'none'; // Hide text
+
+                const form = document.querySelector('div.modal.fade.show form');
+                const formData = new FormData(form);
+    
+                const url = "/stock/update"
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        form.querySelector('div[id="notice"]').innerHTML = errorData.detail;
+                        spinner.classList.add('d-none'); // Hide spinner
+                        buttonText.style.display = ''; // Show text
+                        document.getElementById('opaque').classList.add('d-none');
+                        return;
+                    }
+
+                    const result = await response.json();
+
+                    alert(result.detail);
+
+                    window.location.reload();
+
+                } catch (error) {
+                    spinner.classList.add('d-none'); // Hide spinner
+                    buttonText.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    alert(`catched error: ${error}`);
+                }
+            }
+            
+        </script>
+{% endblock %}

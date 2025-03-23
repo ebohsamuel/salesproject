@@ -1,0 +1,235 @@
+{% extends "dashboard.html" %}
+
+{% block title %} Add Purchase {% endblock %}
+
+{% block style %} 
+    <style>
+        .content-container {
+            max-width: 200px;
+        }
+        @media (max-width: 576px) {
+            .content-container {
+                max-width: 160px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% if products %}
+        <div class="container-fluid position-relative">
+            <div class="mb-5 text-secondary text-center"><h4 class="fw-bold fs-3">click on any product to enter purchase</h4></div>
+            <div class="row mb-4">
+                <div class="col-12 col-md-4 ms-md-5 ps-md-5">
+                    <input id="searchInput" type="text" class="form-control" placeholder="Search Product" aria-label="Search">
+                </div>
+            </div>
+            <div class="row mx-2 g-3 justify-content-center">
+                {% for product in products %}
+                    <!-- purchase button -->
+                    <div name="productContainer" selector="purchaseButton" role="button" class="content-container d-flex justify-content-center" data-bs-toggle="modal" data-bs-target="#product{{ product.id }}">
+                        <div class="card shadow" style="transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0px)'">
+                            <img src="data:image/jpeg;base64,{{ product.image_data }}" class="card-img-top img-fluid" style="height: 150px;" alt="...">
+                            <div class="card-body">
+                              <h5 class="card-title text-secondary fw-semibold" style="font-size: small;">{{ product.product_name }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- modal for purchase -->
+                    <div class="modal fade" id="product{{ product.id }}" tabindex="-1" aria-labelledby="productLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="productLabel">Enter Purchase</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid">
+                                        <!-- modal form -->
+                                        <form class="row text-start g-3">                                      
+                                            <div class="col-12">
+                                                <div id="notice1" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                                <label for="productId" class="form-label fw-medium">Product Id <span class="text-danger">*</span></label>
+                                                <input type="number" name="product_id" class="form-control" id="productId" value="{{ product.id }}" readonly>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="purchaseDate" class="form-label fw-medium">Date of Purchase <span class="text-danger">*</span></label>
+                                                <input type="date" name="purchase_date" class="form-control" id="purchaseDate" required>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="productName" class="form-label fw-medium">Product Name <span class="text-danger">*</span></label>
+                                                <input type="text" name="product_name" class="form-control" id="productName" value="{{ product.product_name }}" readonly>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="quantity" class="form-label fw-medium">Quantity <span class="text-danger">*</span></label>
+                                                <input type="number" name="quantity" class="form-control" id="quantity" required>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="unitCost" class="form-label fw-medium">Unit Cost <span class="text-danger">*</span></label>
+                                                <input type="number" step="0.01" name="unit_cost" class="form-control" id="unitCost" required>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="totalCost" class="form-label fw-medium">Total Cost <span class="text-danger">*</span></label>
+                                                <input type="number" step="0.01" name="total_cost" class="form-control" id="totalCost" readonly>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="alertBalance" class="form-label fw-medium">Alert Balance</label>
+                                                <input type="number" name="alert_balance" class="form-control" id="alertBalance">
+                                                <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button element-name="submitButton" type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">
+                                        <span element-name="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                                        <span element-name="buttonText">Submit</span>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>    
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered products</h3></div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+        <script>
+            const selectors = document.querySelectorAll('div[selector="purchaseButton"]');
+            const searchInput = document.getElementById('searchInput');
+            const productContainers = document.querySelectorAll('div[name="productContainer"]');
+
+            document.addEventListener('DOMContentLoaded', ()=>{
+                inputEventListernerFunction();
+            });
+
+            function inputEventListernerFunction() {
+                searchInput.addEventListener('input', ()=>{
+                    let value = searchInput.value.trim().toLocaleLowerCase();
+                    activate(value);
+                });
+            }
+
+            function activate(value) {
+                Array.from(productContainers).forEach(productContainer=>{
+                    let productName = productContainer.querySelector('.card-title.text-secondary.fw-semibold').innerHTML.trim().toLocaleLowerCase();
+
+                    if (value !== '') {
+                        if (productName.includes(value)) {
+                            productContainer.classList.remove('d-none');
+                        }else {
+                            productContainer.classList.add('d-none');
+                        }  
+                    }else if (value === '') {
+                        productContainer.classList.remove('d-none');
+                    }
+                });
+            }
+
+        
+            selectors.forEach(selector => {
+                selector.addEventListener('click', ()=>{
+                    const modalId = selector.getAttribute('data-bs-target').split('#')[1];
+                    const modal = document.getElementById(modalId);
+
+                    const form = modal.querySelector('form');
+                    
+                    const quantity = form.querySelector('input#quantity');
+                    const unitCost = form.querySelector('input#unitCost');
+                    const totalCost = form.querySelector('input#totalCost');
+
+                    quantity.addEventListener('input',()=>{   
+                        if (quantity.value !== '' && unitCost.value !== '') {
+                            const qty = parseInt(quantity.value, 10) || 0;
+                            const cost = parseFloat(unitCost.value) || 0;
+                            totalCost.value = qty * cost;
+                        }else {
+                            totalCost.value = '';
+                        }
+                    });
+
+                    unitCost.addEventListener('input',()=>{
+                        if (quantity.value !== '' && unitCost.value !== '') {
+                            const qty = parseInt(quantity.value, 10) || 0;
+                            const cost = parseFloat(unitCost.value) || 0;
+                            totalCost.value = qty * cost;
+                        }else {
+                            totalCost.value = '';
+                        }
+                    });
+
+                });
+            });
+
+            async function submitForm() {
+                document.getElementById('opaque').classList.remove('d-none');
+                const submitButton = document.querySelector('div.modal.fade.show button[element-name="submitButton"]');
+
+                const spinner = document.querySelector('div.modal.fade.show span[element-name="spinner"]');
+                const buttonText = document.querySelector('div.modal.fade.show span[element-name="buttonText"]');
+
+                spinner.classList.remove('d-none'); // Show spinner
+                buttonText.style.display = 'none'; // Hide text
+
+                const form = document.querySelector('div.modal.fade.show form');
+                const inputs = form.querySelectorAll('input[required]');
+                for (let input of inputs) {
+                    if (input.value === '') {
+                        form.querySelector('div#notice').innerHTML = "Please ensure all fields marked with * are filled";
+                        form.querySelector('div#notice1').innerHTML = "Please ensure all fields marked with * are filled";
+                        spinner.classList.add('d-none'); // Hide spinner
+                        buttonText.style.display = ''; // Show text
+                        document.getElementById('opaque').classList.add('d-none');
+                        return;
+                    }
+                }
+
+                const formData = new FormData(form);
+                const url = "/purchase-add"
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    })
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        form.querySelector('div#notice').innerHTML = errorData.detail;
+                        form.querySelector('div#notice1').innerHTML = errorData.detail;
+                        
+                        form.querySelectorAll('input').forEach(input=>{
+                            if (!input.hasAttribute('readonly')) {
+                                input.value = '';
+                            }
+                        });
+                        spinner.classList.add('d-none'); // Hide spinner
+                        buttonText.style.display = ''; // Show text
+                        document.getElementById('opaque').classList.add('d-none');
+                        return;
+                    }
+
+                    spinner.classList.add('d-none'); // Hide spinner
+                    buttonText.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+
+                    const result = await response.json();
+                    form.querySelectorAll('input').forEach(input=>{
+                        if (!input.hasAttribute('readonly')) {
+                            input.value = '';
+                        }
+                    });
+                    alert(result.detail);                    
+                } catch (error) {
+                    spinner.classList.add('d-none'); // Hide spinner
+                    buttonText.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    alert(`catched error: ${error}`);
+                }
+            }
+        </script>
+{% endblock %}

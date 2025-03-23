@@ -1,0 +1,333 @@
+{% extends "dashboard.html" %}
+
+{% block title %} Sales {% endblock %}
+
+{% block style %} 
+    <style>
+        .content-container {
+            max-width: 200px;
+        }
+        @media (max-width: 576px) {
+            .content-container {
+                max-width: 160px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% if products %}
+        <div class="container-fluid position-relative">
+            <div class="row g-5">
+                <div class="col-12 col-md-6 d-flex justify-content-center">
+                    <input style="max-width: 300px;" id="searchInput" type="text" class="form-control" placeholder="Search Product" aria-label="Search">
+                </div>
+                <div class="col-12 col-md-6 d-flex justify-content-center">
+                    <span id="cartToggleButton" class="btn btn-outline-secondary me-md-5 position-relative" style="font-size: 18px; width: 150px;" data-bs-toggle="offcanvas" data-bs-target="#cart" aria-controls="cart"><i class="bi bi-cart"></i> 
+                        Cart
+                        <div id="count" class="position-absolute top-100 start-100 translate-middle fw-bold text-danger" style="font-size: 20px;"></div>
+                    </span>
+                    <!-- offcanvas for the cart button -->
+                    <div class="offcanvas offcanvas-end" data-bs-scroll="true" tabindex="-1" id="cart" aria-labelledby="cartLabel">
+                        <div class="offcanvas-header">
+                          <button name="checkoutButton" class="btn btn-outline-secondary offcanvas-title" id="cartLabel">
+                            <span id="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                            <span id="buttonText">Checkout</span>
+                        </button>
+                          <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                        </div>
+                        <div class="offcanvas-body">
+                            <div class="row g-3">
+                                <div class="col-12 text-end">NGN <span class="fw-bold" id="total">0</span></div>
+                                <div class="col-12">
+                                    <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                    <div class="row" id="cartTable" style="gap: 1.0rem;">
+                                        <!-- this portion would be dynamically updated -->
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+                <div class="col-12">
+                    <div class="row g-3 justify-content-center">
+                        {% for product in products %}
+                        <div class="content-container d-flex justify-content-center" name="cardContainer">
+                            <div class="card shadow" style="transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0px)'">
+                                <img src="data:image/jpeg;base64,{{ product.image_data }}" class="card-img-top img-fluid" style="height: 150px;" alt="...">
+                                <div class="card-body">
+                                  <h5 class="card-title fw-bold text-secondary" style="font-size: small;">{{ product.product_name }}</h5>
+                                  <p class="card-text fw-semibold text-secondary" style="font-size: small;">price: <span name="price">{{ "{:,.2f}".format(product.price) if product.price is not none else "n/a" }}</span></p>
+                                  <p class="card-text fw-semibold text-secondary" style="font-size: small;">qty: <span name="available_stock">{{ product.available }}</span></p>
+                                  <a role="button" class="btn btn-outline-secondary" style="font-size: small;"><i class="bi bi-cart"></i> add to cart</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+    <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No stocked products</h3></div>
+    {% endif %}
+{% endblock %}
+{% block scripts %}
+    <script>
+        const cartButtons = document.querySelectorAll('a[role="button"]');
+        const count = document.getElementById('count');
+        const cartTable = document.getElementById('cartTable');
+        const cardBody = document.querySelectorAll('.card-body');
+        const checkoutButton = document.querySelector('button[name="checkoutButton"]');
+        const searchInput = document.getElementById('searchInput');
+        const cardContainers = document.querySelectorAll('div[name="cardContainer"]');
+
+        cardBody.forEach(card=>{
+            const price = card.querySelector('span[name="price"]').innerHTML.trim();
+            const stock = card.querySelector('span[name="available_stock"]').innerHTML.trim().toLocaleLowerCase();
+            if (price === 'n/a' || stock === '0') {
+                card.querySelector('a[role="button"]').classList.add('disabled');
+            }
+        });
+
+        function checkoutButtonFunction() {
+            checkoutButton.addEventListener('click',()=>{
+                document.getElementById('opaque').classList.remove('d-none');
+                const spinner = document.getElementById('spinner');
+                const buttonText = document.getElementById('buttonText');
+            
+                spinner.classList.remove('d-none'); // Show spinner
+                buttonText.style.display = 'none'; // Hide text
+
+                let items = [];
+                let cartRows = cartTable.querySelectorAll('div[element-name="cartRow"]');
+                let inputs = cartTable.querySelectorAll('input');
+                let inputValues = Array.from(inputs).map(input => input.value);
+
+                for (let value of inputValues) {
+                    if (value === '' || value === '0') {
+                        document.getElementById('notice').innerHTML = "All quantity fields must have a minimum value of 1 before proceeding to checkout.";
+                        spinner.classList.add('d-none'); // Hide spinner
+                        buttonText.style.display = ''; // Show text
+                        document.getElementById('opaque').classList.add('d-none');
+                        return;
+                    }else {
+                        document.getElementById('notice').innerHTML = '';
+                    }
+                }
+
+                if (inputs.length === 0) {
+                    document.getElementById('notice').innerHTML = '';
+                    document.getElementById('notice').innerHTML = "you can't submit an empty cart";
+                    spinner.classList.add('d-none'); // Hide spinner
+                    buttonText.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    return;
+                }
+
+                cartRows.forEach(cartRow=>{
+                    let productName = cartRow.querySelector('div[element-name="cartName"]').innerHTML.trim();
+                    let price = cartRow.querySelector('div[element-name="cartPrice"]').innerHTML.trim();
+                    let quantity = cartRow.querySelector('input[type="number"]').value;
+                    items.push({
+                        'product_name': productName,
+                        'price': price,
+                        'quantity': quantity
+                    });
+                });
+
+                localStorage.setItem('items', JSON.stringify(items));
+
+                let total = document.getElementById('total').innerHTML;
+                localStorage.setItem('total',JSON.stringify(total));
+                
+                window.location.href = '/sales-summary';
+
+            });
+        }
+        
+
+
+
+        cartButtons.forEach(cartButton => {
+            cartButton.addEventListener('click', ()=>{
+                cartButton.classList.add('disabled');
+
+                count.innerHTML = JSON.parse(localStorage.getItem('cartCount')) || 0;
+                let x = parseInt(count.innerHTML) || 0;
+                x += 1;
+                count.innerHTML = x;
+
+                localStorage.setItem('cartCount', JSON.stringify(count.innerHTML));
+
+                const parentElement = cartButton.parentElement;
+                const price = parentElement.querySelector('span[name="price"]').innerHTML;
+                const availableStock = parentElement.querySelector('span[name="available_stock"]').innerHTML;
+                const productName = parentElement.querySelector('h5').innerHTML;
+
+                let data = JSON.parse(localStorage.getItem('data')) || [];
+                
+                let exists = data.some(item => item.product_name === productName);
+
+                if (!exists) {
+                    data.push({ 'product_name': productName, 'available': availableStock, 'price': price });
+                }
+                localStorage.setItem('data', JSON.stringify(data));
+
+
+            });
+        });
+
+        function cartTableFill() {
+            cartTable.innerHTML = '';
+            let html = '';
+            let data = JSON.parse(localStorage.getItem('data')) || [];
+
+            Array.from(data).forEach(value => {
+                html += `
+                    <div class="col-12" element-name="cartRow">
+                        <div class="row g-0 border border-1 border-success rounded-3 mb-3">
+                            <div class="col-11 d-flex align-items-center flex-wrap justify-content-center rounded-start fw-semibold" element-name="cartName">${value.product_name}</div>
+                            <div role="button" element-name="closeButton" class="col-1 fw-semibold d-flex align-items-center justify-content-center">
+                                <i class="bi bi-trash"></i>
+                            </div>
+                            <div class="col-4 border-top rounded d-flex align-items-center justify-content-center fw-semibold" element-name="cartPrice">${value.price}</div>
+                            <div class="col-4 d-flex align-items-center justify-content-center" element-name="cartQty">
+                                <input type="number" min="1" max=${value.available} class="form-control" placeholder="qty" aria-label="qty">
+                            </div>
+                            <div class="col-4 d-flex border-top rounded align-items-center justify-content-center rounded-end fw-semibold" element-name="cartSubtotal"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            cartTable.innerHTML = html;
+
+            attachCloseButtonEvents(); // Reattach the event listeners after filling the table
+            checkoutButtonFunction();
+        }
+
+        function attachCloseButtonEvents() {
+
+            let cartcloseButtons = document.querySelectorAll('#cartTable div[element-name="closeButton"]');
+
+            cartcloseButtons.forEach(cartcloseButton => {
+                cartcloseButton.addEventListener('click', () => {
+                    const parentElement = cartcloseButton.parentElement;
+                    const productName = parentElement.querySelector('div[element-name="cartName"]').innerHTML;
+    
+                    cardBody.forEach(card=>{
+                        let cartName = card.querySelector('h5');
+                        if (cartName.innerHTML === productName) {
+                            card.querySelector('a[role="button"]').classList.remove('disabled');
+                        }
+                    });
+
+                    let data = JSON.parse(localStorage.getItem('data')) || [];
+                    let filteredData = data.filter(item => item.product_name !== productName);
+                    localStorage.setItem('data', JSON.stringify(filteredData));
+
+                    cartTableFill();  // Refresh the table
+                    cartInputFunc();  // Reattach input event listeners
+                    
+
+
+                    document.getElementById('total').innerHTML = 0;
+
+
+                    let x = parseInt(JSON.parse(localStorage.getItem('cartCount')) || 0);
+                    x -= 1;
+                    if (x !== 0) {
+                        count.innerHTML = x;
+                    } else {
+                        count.innerHTML = '';
+                    }
+                    
+                    localStorage.setItem('cartCount', JSON.stringify(count.innerHTML));
+                });
+            });
+        }
+
+
+        function cartInputFunc() {
+            let cartInputs = document.querySelectorAll('#cartTable input');
+            
+            Array.from(cartInputs).forEach(cartInput=>{
+                const grandElement = cartInput.parentElement.parentElement;
+                let cartSubtotals = document.querySelectorAll('#cartTable div[element-name="cartSubtotal"]');
+                cartInput.addEventListener('input', ()=>{
+
+                    if (parseInt(cartInput.value,10) > parseInt(cartInput.max,10)) {
+                        cartInput.value = cartInput.max;
+                        checkoutButton.classList.add('disabled');
+                        document.getElementById('notice').innerHTML = "don't exceeded the available number of stock";
+                    } else if (parseInt(cartInput.value,10) <= parseInt(cartInput.max,10)) {
+                        
+                        checkoutButton.classList.remove('disabled');
+                        document.getElementById('notice').innerHTML = '';
+                    }
+
+                    if (cartInput.value !== '') {
+                        const price = grandElement.querySelector('div[element-name="cartPrice"]').innerHTML.replace(/,/g, "");
+                        grandElement.querySelector('div[element-name="cartSubtotal"]').innerHTML = (parseFloat(price) * parseInt(cartInput.value)).toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    } else if (cartInput.value === '') {
+                        
+                        grandElement.querySelector('div[element-name="cartSubtotal"]').innerHTML = '';
+                    }
+                    let x = 0;
+                    Array.from(cartSubtotals).forEach(cartSubtotal=>{
+                        x += parseFloat(cartSubtotal.innerHTML.replace(/,/g, "")) || 0;
+                    });
+
+                    document.getElementById('total').innerHTML = x.toLocaleString("en-US", {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    
+                });
+            });
+        }
+
+        document.getElementById('cartToggleButton').addEventListener('click', ()=>{
+            cartTableFill();
+            cartInputFunc();
+
+        });
+
+        
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            count.innerHTML = JSON.parse(localStorage.getItem('cartCount')) || 0;
+            let x = parseInt(count.innerHTML) || 0;
+            if (x === 0) {
+                count.innerHTML = '';
+            } else {
+                count.innerHTML = x;
+            }
+            inputEventListernerFunction();
+        });
+
+        function inputEventListernerFunction() {
+
+            searchInput.addEventListener('input', ()=>{
+                let value = searchInput.value.trim().toLocaleLowerCase();
+                activate(value);
+            });
+        }
+
+
+        function activate(value) {
+
+            Array.from(cardContainers).forEach(cardContainer=>{
+                let productName = cardContainer.querySelector('.card-title.fw-bold').innerHTML.trim().toLocaleLowerCase();
+
+                if (value !== '') {
+                    if (productName.includes(value)) {
+                        cardContainer.classList.remove('d-none');
+                    }else {
+                        cardContainer.classList.add('d-none');
+                    }  
+                }else if (value === '') {
+                    cardContainer.classList.remove('d-none');
+                }
+            });
+        }
+    </script>
+{% endblock %}

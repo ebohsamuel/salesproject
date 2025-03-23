@@ -1,0 +1,380 @@
+{% extends "dashboard.html" %}
+
+{% block title %} Sales update {% endblock %}
+
+{% block content %}
+    {% if order_items %}
+        <div class="container-fluid position-relative">
+            <div class="mb-5 text-secondary text-center"><h4 class="fw-bold fs-3">click on any update buttons to update order</h4></div>
+            <div class="row g-4">
+                <div class="col-12 col-md-4">
+                    <input id="dateSearch" type="text" class="form-control" placeholder="Date" aria-label="Date">
+                    <div id="notice2" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <input id="search" type="text" class="form-control" placeholder="Search Product" aria-label="Search...">
+                </div>
+                <div class="col-12 col-md-4">
+                    <button id="searchButton" class="btn btn-outline-secondary" style="width: 300px;">
+                        <span id="spinnerSearch" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                        <span id="buttonTextSearch" role="status">Search</span>
+                    </button>
+                </div>
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                              <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Receipt</th>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Attendant</th>
+                                <th scope="col">Customer Name</th>
+                                <th scope="col">Quantity</th>
+                                <th scope="col">Price</th>
+                                <th scope="col"></th>
+                              </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                              {% for order_item in order_items %}
+                                <tr>
+                                    <th scope="row">{{ loop.index }}</th>
+                                    <td>{{ order_item.order.order_date }}</td>
+                                    <td>{{ order_item.order.id }}</td>
+                                    <td>{{ order_item.product.product_name }}</td>                                    
+                                    <td>{{ order_item.order.user.fullname }}</td>
+                                    <td>{{ order_item.order.customer_name if order_item.order.customer_name is not none else "N/A"  }}</td>
+                                    <td>{{ order_item.quantity }}</td>
+                                    <td>{{ order_item.price }}</td>
+                                    <td><span selector="updateButton" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#order_item{{ order_item.id }}">Update</span></td>                                              
+                                </tr>
+                              {% endfor %}
+                            </tbody>
+                        </table>
+                        {% for order_item in order_items %}
+                            <!-- modal for sales update-->
+                            <div class="modal fade" id="order_item{{ order_item.id }}" tabindex="-1" aria-labelledby="orderItemLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="orderItemLabel">Order Items Update</h1> 
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="container-fluid">
+                                                <!-- modal form -->
+                                                <form class="row text-start g-3">
+                                                    <div class="col-12">
+                                                        <div id="notice1" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                                        <label for="orderItemId" class="form-label fw-medium">Order Item Id</label>
+                                                        <input type="int" name="order_item_id" class="form-control" id="orderItemId" value="{{ order_item.id }}" readonly>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label for="orderId" class="form-label fw-medium">Order Id</label>
+                                                        <input type="int" name="order_id" class="form-control" id="orderId" value="{{ order_item.order_id }}" readonly>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label for="productName" class="form-label fw-medium">Product Name</label>
+                                                        <input type="text" name="product_name" class="form-control" id="productName">
+                                                    </div>                                                 
+                                                    <div class="col-12">
+                                                        <label for="quantity" class="form-label fw-medium">Quantity</label>
+                                                        <input type="number" name="quantity" class="form-control" id="quantity">
+                                                    </div>                                                                                                  
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">
+                                                <span element-name="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                                                <span element-name="buttonText">Submit</span>
+                                            </button>
+                                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered sales</h3></div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const dateSearch = document.getElementById('dateSearch');
+        const search = document.getElementById('search');
+        const searchButton = document.getElementById('searchButton');
+        const yearPattern = /^\d{4}$/;  // YYYY
+        const yearMonthPattern = /^\d{4}-(0[1-9]|1[0-2])$/;  // YYYY-MM
+        const fullDatePattern = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/; // YYYY-MM-DD
+
+        function createTableFunction(tableArray) {
+            const tableCover = document.querySelector('.table-responsive');
+            tableCover.innerHTML = '';
+            let tableElement = document.createElement('table');
+            tableElement.classList.add('table', 'table-hover', 'align-middle');
+
+            const tableHead = document.createElement('thead');
+            tableHead.classList.add('table-dark');
+            tableHead.innerHTML = `
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Receipt</th>
+                    <th scope="col">Product Name</th>
+                    <th scope="col">Attendant</th>
+                    <th scope="col">Customer Name</th>
+                    <th scope="col">Quantity</th>
+                    <th scope="col">Price</th>
+                    <th scope="col"></th>
+                </tr>                    
+            `;
+
+            tableElement.appendChild(tableHead);
+
+            let tableBody = document.createElement('tbody');
+            tableBody.classList.add('table-group-divider');
+            
+
+            let html = '';
+            Array.from(tableArray).forEach((arr, index)=>{
+                html += `
+                    <tr>
+                        <th scope="row">${index + 1}</th>
+                        <td>${arr.order_date}</td>
+                        <td>${arr.order_id}</td>
+                        <td>${arr.product_name}</td>
+                        <td>${arr.user}</td>
+                        <td>${arr.customer_name ?? "N/A"}</td>
+                        <td>${arr.quantity}</td>
+                        <td>${arr.price}</td>
+                        <td><span selector="updateButton" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#order_item${arr.id}">Update</span></td>                                              
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = html;
+            tableElement.appendChild(tableBody);
+            tableCover.appendChild(tableElement);
+            let modal = '';
+            Array.from(tableArray).forEach(arr=>{
+                modal += `
+                    <div class="modal fade" id="order_item${arr.id}" tabindex="-1" aria-labelledby="orderItemLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="orderItemLabel">Order Items Update</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid">
+                                        <!-- modal form -->
+                                        <form class="row text-start g-3">
+                                            <div class="col-12">
+                                                <div id="notice1" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                                <label for="orderItemId" class="form-label fw-medium">Order Item Id</label>
+                                                <input type="int" name="order_item_id" class="form-control" id="orderItemId" value="${arr.id}" readonly>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="orderid" class="form-label fw-medium">Order Id</label>
+                                                <input type="int" name="order_id" class="form-control" id="orderid" value="${arr.order_id}" readonly>
+                                            </div>                                     
+                                            <div class="col-12">
+                                                <label for="productName" class="form-label fw-medium">Product Name</label>
+                                                <input type="text" name="product_name" class="form-control" id="productName">
+                                            </div>                                                 
+                                            <div class="col-12">
+                                                <label for="quantity" class="form-label fw-medium">Quantity</label>
+                                                <input type="number" name="quantity" class="form-control" id="quantity">
+                                            </div>                                                                                                  
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">
+                                        <span element-name="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                                        <span element-name="buttonText">Submit</span>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                `;
+            });
+
+            tableCover.innerHTML += modal;
+            inputEventListenerFunction();
+        }
+
+
+        
+        searchButton.addEventListener('click', async ()=>{
+            document.getElementById('opaque').classList.remove('d-none');
+            const spinnerSearch = document.getElementById('spinnerSearch');
+            const buttonTextSearch = document.getElementById('buttonTextSearch');
+            
+            spinnerSearch.classList.remove('d-none'); // Show spinner
+            buttonTextSearch.style.display = 'none'; // Hide text
+
+            const value = dateSearch.value;
+            if (value==='') {
+                document.getElementById('notice2').innerHTML = "Ensure the date field is filled";
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                return;
+            }else {
+                document.getElementById('notice2').innerHTML = '';
+            }
+
+            if (yearPattern.test(value) || yearMonthPattern.test(value) || fullDatePattern.test(value)) {
+                document.getElementById('notice2').innerHTML = '';
+            }else {
+                document.getElementById('notice2').innerHTML = "Enter a valid date";
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                return;
+            }
+
+            if (fullDatePattern.test(value)) {
+                const date = new Date(value);
+                const [year, month, day] = value.split('-').map(Number);
+                if (date.getMonth() + 1 === month) {
+                    document.getElementById('notice2').innerHTML = '';
+                } else {
+                    document.getElementById('notice2').innerHTML = "Enter a valid date";
+                    spinnerSearch.classList.add('d-none'); // Hide spinner
+                    buttonTextSearch.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    return;
+                }
+            }
+
+            const url = `/sales-data?date_str=${encodeURIComponent(value)}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`http error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                const tableArray = result.data;
+                dateSearch.value = '';
+                createTableFunction(tableArray);
+
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+
+            } catch (error) {
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                alert(error);
+            }               
+
+        });
+
+        function inputEventListenerFunction() {
+
+            dateSearch.addEventListener('input', ()=>{
+                const value1 = dateSearch.value.trim().toLocaleLowerCase();
+                const value2 = search.value.trim().toLocaleLowerCase();
+
+                activate(value1, value2);
+            });
+            search.addEventListener('input', ()=>{
+                const value1 = dateSearch.value.trim().toLocaleLowerCase();
+                const value2 = search.value.trim().toLocaleLowerCase();
+
+                activate(value1, value2);
+            });
+
+        }
+
+
+        function activate(value1, value2) {
+
+            const bodyRows = document.querySelectorAll('tbody tr');
+            
+            bodyRows.forEach(row=>{
+                
+                const rowContent = Array.from(row.children).slice(1,4).map(td=>td.innerHTML.trim().toLocaleLowerCase()).join(' ');
+
+
+                if (value1 !== '' && value2 === '') {
+                    if (rowContent.includes(value1)) {
+                        row.style.display = '';
+                    }else {
+                        row.style.display = 'none';
+                    }  
+                }else if (value1 === '' && value2 !== '') {
+                    if (rowContent.includes(value2)) {
+                        row.style.display = '';
+                    }else {
+                        row.style.display = 'none';
+                    }  
+                }else if (value1 !== '' && value2 !== '') {
+                    if (rowContent.includes(value1) && rowContent.includes(value2)) {
+                        row.style.display = '';
+                    }else {
+                        row.style.display = 'none';
+                    }  
+                }else if (value1 === '' && value2 === '') {
+                    row.style.display = '';
+                }
+            });
+        }
+
+        async function submitForm() {
+            document.getElementById('opaque').classList.remove('d-none');
+            const spinner = document.querySelector('div.modal.fade.show span[element-name="spinner"]');
+            const buttonText = document.querySelector('div.modal.fade.show span[element-name="buttonText"]');
+
+            spinner.classList.remove('d-none'); // Show spinner
+            buttonText.style.display = 'none'; // Hide text
+
+            const form = document.querySelector('div.modal.fade.show form');
+            const formData = new FormData(form);
+            const url = "/sales/update";
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                })
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    form.querySelector('div#notice1').innerHTML = errorData.detail;
+                    spinner.classList.add('d-none'); // Hide spinner
+                    buttonText.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    return;
+                }
+                const result = await response.json();
+                alert(result.detail);
+                window.location.reload();                    
+            } catch (error) {
+                spinner.classList.add('d-none'); // Hide spinner
+                buttonText.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                alert(`catched error: ${error}`);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', ()=>{
+            inputEventListenerFunction();
+        });
+
+
+    </script>   
+{% endblock %}

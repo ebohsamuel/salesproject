@@ -1,0 +1,446 @@
+{% extends "dashboard.html" %}
+
+{% block title %} Expense {% endblock %}
+
+{% block content %}
+    {% if expenses %}
+        <div class="container-fluid">
+            <div class="mb-5 text-secondary text-center"><h4 class="fw-bold fs-3">click on any update buttons to update expense</h4></div>
+            <div class="row g-4">
+                <div class="col-12 col-md-4">
+                    <input style="max-width: 300px;" id="dateSearch" type="text" class="form-control" placeholder="Date" aria-label="Date">
+                    <div id="notice2" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <button id="searchButton" class="btn btn-outline-secondary" style="width: 300px;">
+                        <span id="spinnerSearch" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                        <span id="buttonTextSearch" role="status">Search</span>
+                    </button>
+                </div>
+                <div class="col-12 col-md-4">
+                    <span class="btn btn-outline-secondary" style="width: 300px;" data-bs-toggle="modal" data-bs-target="#expenseregistration">Add Expenses <i class="bi bi-plus"></i></span>
+                </div> 
+                <!-- modal for adding new expenses -->
+                <div class="modal fade" id="expenseregistration" tabindex="-1" data-bs-backdrop="true" data-bs-keyboard="false" aria-labelledby="exspenseLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exspenseLabel">Enter Expense</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <!-- modal form -->
+                                    <form id="myForm" class="row text-start g-3">                                      
+                                        <div class="col-12">
+                                            <label for="expenseDate" class="form-label fs-5 text-secondary fw-medium">Date of Expense</label>
+                                            <input type="date" name="expense_date" class="form-control" id="expenseDate">
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="expenseAmount" class="form-label fs-5 text-secondary fw-medium">Expense Amount</label>
+                                            <input type="number" name="amount" class="form-control" id="expenseAmount">
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="description" class="form-label fs-5 text-secondary fw-medium">Description</label>
+                                            <textarea class="form-control" name="description" placeholder="describe your expenses here" id="description" style="height: 100px"></textarea>
+                                            <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button id="submitButton" type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">
+                                    <span id="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                                    <span id="buttonText">Submit</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Date of Expense</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Expense Amount</th>
+                                    <th scope="col"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+                            {% for expense in expenses %}
+                            <tr>
+                                <th scope="row">{{ loop.index }}</th>
+                                <td>{{ expense.expense_date if expense.expense_date is not none else "N/A" }}</td>                               
+                                <td>{{ expense.description if expense.description is not none else "N/A" }}</td>
+                                <td>{{ expense.amount if expense.amount is not none else "N/A" }}</td>
+                                <td><span class="btn btn-success" data-bs-toggle="modal" data-bs-target="#expenseUpdate{{ expense.id }}">Update</span></td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        {% for expense in expenses %}
+                            <!-- modal for expense update-->
+                            <div class="modal fade" id="expenseUpdate{{ expense.id }}" tabindex="-1" aria-labelledby="expenseLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="expenseLabel">Expense Update</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="container-fluid">
+                                                <!-- modal form -->
+                                                <form id="myForm" class="row text-start g-3">
+                                                    <div class="col-12">
+                                                        <label for="expenseId" class="form-label fs-5 text-secondary fw-medium">Expense Id</label>
+                                                        <input type="int" name="expense_id" class="form-control" id="expenseId" value="{{ expense.id }}" readonly>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label for="expenseAmount" class="form-label fs-5 text-secondary fw-medium">Expense Amount</label>
+                                                        <input type="number" name="amount" class="form-control" id="expenseAmount">
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <label for="description" class="form-label fs-5 text-secondary fw-medium">Description</label>
+                                                        <textarea class="form-control" name="description" placeholder="describe your expenses here" id="description" style="height: 100px"></textarea>
+                                                        <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-primary rounded-pill" onclick="updateSubmitForm()">
+                                                <span element-name="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                                                <span element-name="buttonText">Submit</span>
+                                            </button>
+                                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> 
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div> 
+    {% else %}
+        <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered expense</h3></div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // js for updating epenses
+        const dateSearch = document.getElementById('dateSearch');
+        const searchButton = document.getElementById('searchButton');
+
+        const yearPattern = /^\d{4}$/;  // YYYY
+        const yearMonthPattern = /^\d{4}-(0[1-9]|1[0-2])$/;  // YYYY-MM
+        const fullDatePattern = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/; // YYYY-MM-DD
+
+        function createTableFunction(tableArray) {
+            const tableCover = document.querySelector('.table-responsive');
+            tableCover.innerHTML = '';
+            let tableElement = document.createElement('table');
+            tableElement.classList.add('table', 'table-hover', 'align-middle');
+
+            const tableHead = document.createElement('thead');
+            tableHead.classList.add('table-dark');
+            tableHead.innerHTML = `
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Date of Expense</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Expense Amount</th>
+                    <th scope="col"></th>
+                </tr>                  
+            `;
+
+            tableElement.appendChild(tableHead);
+
+            let tableBody = document.createElement('tbody');
+            tableBody.classList.add('table-group-divider');
+            
+
+            let html = '';
+            Array.from(tableArray).forEach((arr, index)=>{
+                html += `
+                    <tr>
+                        <th scope="row">${index + 1}</th>
+                        <td>${arr.expense_date ?? "N/A"}</td>
+                        <td>${arr.description ?? "N/A"}</td>
+                        <td>${arr.amount ?? "N/A"}</td>
+                        <td><span selector="updateButton" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#expenseUpdate${arr.id}">Update</span></td>                                              
+                    </tr>
+                `;
+            });
+            tableBody.innerHTML = html;
+            tableElement.appendChild(tableBody);
+            tableCover.appendChild(tableElement);
+            let modal = '';
+            Array.from(tableArray).forEach(arr=>{
+                modal += `
+                    <div class="modal fade" id="expenseUpdate${arr.id}" tabindex="-1" aria-labelledby="expenseLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="expenseLabel">Expense Update</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="container-fluid">
+                                        <!-- modal form -->
+                                        <form id="myForm" class="row text-start g-3">
+                                            <div class="col-12">
+                                                <label for="expenseId" class="form-label fs-5 text-secondary fw-medium">Expense Id</label>
+                                                <input type="int" name="expense_id" class="form-control" id="expenseId" value="${arr.id}" readonly>
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="expenseAmount" class="form-label fs-5 text-secondary fw-medium">Expense Amount</label>
+                                                <input type="number" name="amount" class="form-control" id="expenseAmount">
+                                            </div>
+                                            <div class="col-12">
+                                                <label for="description" class="form-label fs-5 text-secondary fw-medium">Description</label>
+                                                <textarea class="form-control" name="description" placeholder="describe your expenses here" id="description" style="height: 100px"></textarea>
+                                                <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">
+                                        <span element-name="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                                        <span element-name="buttonText">Submit</span>
+                                    </button>
+                                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>  
+                `;
+            });
+
+            tableCover.innerHTML += modal;
+            inputEventListenerFunction();
+        }
+
+
+
+        function inputEventListenerFunction() {
+
+            dateSearch.addEventListener('input', ()=>{
+                const value = dateSearch.value.trim().toLocaleLowerCase();
+                activate(value);
+            });
+        }
+
+        function activate(value) {
+            const bodyRows = document.querySelectorAll('tbody tr');
+
+            bodyRows.forEach(row=>{
+                
+                const descriptionContent = Array.from(row.children).slice(1,3).map(td => td.innerHTML.trim().toLocaleLowerCase()).join(' ');
+
+
+                if (value !== '') {
+                    if (descriptionContent.includes(value)) {
+                        row.style.display = '';
+                    }else {
+                        row.style.display = 'none';
+                    }  
+                }else if (value === '') {
+                    row.style.display = '';
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', ()=>{
+            inputEventListenerFunction();
+        });
+
+        searchButton.addEventListener('click', async ()=>{
+            document.getElementById('opaque').classList.remove('d-none');
+            const spinnerSearch = document.getElementById('spinnerSearch');
+            const buttonTextSearch = document.getElementById('buttonTextSearch');
+            
+            spinnerSearch.classList.remove('d-none'); // Show spinner
+            buttonTextSearch.style.display = 'none'; // Hide text
+
+            const value = dateSearch.value;
+            if (value==='') {
+                document.getElementById('notice2').innerHTML = "Ensure the date field is filled";
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                return;
+            }else {
+                document.getElementById('notice2').innerHTML = '';
+            }
+
+            if (yearPattern.test(value) || yearMonthPattern.test(value) || fullDatePattern.test(value)) {
+                document.getElementById('notice2').innerHTML = '';
+            }else {
+                document.getElementById('notice2').innerHTML = "Enter a valid date";
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                return;
+            }
+            if (fullDatePattern.test(value)) {
+                const date = new Date(value);
+                const [year, month, day] = value.split('-').map(Number);
+                if (date.getMonth() + 1 === month) {
+                    document.getElementById('notice2').innerHTML = '';
+                } else {
+                    document.getElementById('notice2').innerHTML = "Enter a valid date";
+                    spinnerSearch.classList.add('d-none'); // Hide spinner
+                    buttonTextSearch.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    return;
+                }
+            }
+
+            const url = `/expense-data?date_str=${encodeURIComponent(value)}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`http error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                const tableArray = result.data;
+                
+                createTableFunction(tableArray);
+                dateSearch.value = '';
+
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                
+            } catch (error) {
+                spinnerSearch.classList.add('d-none'); // Hide spinner
+                buttonTextSearch.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                alert(error);
+            }               
+        });
+
+        async function updateSubmitForm() {
+            document.getElementById('opaque').classList.remove('d-none');
+            const spinner = document.querySelector('div.modal.fade.show span[element-name="spinner"]');
+            const buttonText = document.querySelector('div.modal.fade.show span[element-name="buttonText"]');
+
+            spinner.classList.remove('d-none'); // Show spinner
+            buttonText.style.display = 'none'; // Hide text
+
+            const form = document.querySelector('div.modal.fade.show form');
+            const formData = new FormData(form);
+            const url = "/expense/update";
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                })
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    form.querySelector('div[id="notice"]').innerHTML = errorData.detail;
+                    spinner.classList.add('d-none'); // Hide spinner
+                    buttonText.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    return;
+                }
+                const result = await response.json();
+                alert(result.detail);
+                window.location.reload();                    
+            } catch (error) {
+                spinner.classList.add('d-none'); // Hide spinner
+                buttonText.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                alert(`catched error: ${error}`);
+            }
+        }
+
+        // js for adding new expenses
+
+        document.querySelector('.modal.fade').addEventListener('shown.bs.modal', ()=>{
+            submitButtonDisableFunction();
+        });
+
+        function submitButtonDisableFunction() {
+            document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+            const expenseAmount = document.querySelector('#myForm #expenseAmount');
+            const description = document.querySelector('#myForm #description');
+
+            if (expenseAmount.value.trim() === '' || description.value.trim() === '') {
+                document.getElementById('submitButton').disabled = true;
+            } else {
+                document.getElementById('submitButton').disabled = false;
+            }
+
+            expenseAmount.addEventListener('input', ()=>{
+                if (expenseAmount.value.trim() === '' || description.value.trim() === '') {
+                    document.getElementById('submitButton').disabled = true;
+                } else {
+                    document.getElementById('submitButton').disabled = false;
+                }
+            });
+
+            description.addEventListener('input', ()=>{
+                if (expenseAmount.value.trim() === '' || description.value.trim() === '') {
+                    document.getElementById('submitButton').disabled = true;
+                } else {
+                    document.getElementById('submitButton').disabled = false;
+                }
+            });
+        }
+
+
+        async function submitForm() {
+            document.getElementById('opaque').classList.remove('d-none');
+            const spinner = document.getElementById('spinner');
+            const buttonText = document.getElementById('buttonText');
+            
+            spinner.classList.remove('d-none'); // Show spinner
+            buttonText.style.display = 'none'; // Hide text
+
+
+            const form = document.getElementById('myForm');
+            const formData = new FormData(form);
+            const inputs = form.querySelectorAll('input');
+
+            const url = "/expense-add";
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    body: formData
+                })
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    document.getElementById('notice').innerHTML = errorData.detail;
+                    spinner.classList.add('d-none'); // Hide spinner
+                    buttonText.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    return;
+                }
+
+                const result = await response.json();
+                alert(result.detail);
+                window.location.reload();
+
+            } catch (error) {
+                spinner.classList.add('d-none'); // Hide spinner
+                buttonText.style.display = ''; // Show text
+                document.getElementById('opaque').classList.add('d-none');
+                console.error(error);
+            }
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,394 @@
+{% extends "dashboard.html" %}
+
+{% block title %} Product {% endblock %}
+
+{% block style %} 
+    <style>
+        .content-container {
+            max-width: 200px;
+        }
+        @media (max-width: 576px) {
+            .content-container {
+                max-width: 160px;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    {% if products %}
+        <div class="container-fluid position-relative">
+            <div class="mb-5 text-secondary text-center"><h4 class="fw-bold fs-3">click on any product to update</h4></div>
+            <div class="row mb-4 g-3"> 
+                <div class="col-12 col-md-6 d-flex justify-content-center">
+                    <input style="max-width: 250px;" id="searchInput" type="text" class="form-control" placeholder="Search Product" aria-label="Search">
+                </div>
+                <div class="col-12 col-md-6 d-flex justify-content-center">
+                    <span class="btn btn-outline-secondary" style="width: 250px;" data-bs-toggle="modal" data-bs-target="#productregistration">Add Product <i class="bi bi-plus"></i></span>
+                </div>
+            </div>
+            <!-- modal for adding new product -->
+            <div class="modal fade" id="productregistration" tabindex="-1" data-bs-backdrop="true" data-bs-keyboard="false" aria-labelledby="productRegistrationLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5" id="productRegistrationLabel">Enter New Product</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <form id="myForm" class="row text-start g-3">
+                                <div class="col-12">
+                                    <label for="productName" class="form-label fw-medium">Product Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="product_name" class="form-control" id="productName" required>
+                                </div>
+                                <div class="col-12">
+                                    <div style="border:2px dashed; cursor: pointer;" class="w-100 d-flex flex-column justify-content-center align-items-center" id="upload-container">
+                                        <p>Drag & Drop or Click or Paste an Image Here</p>
+                                        <input type="file" name="image_data" id="fileInput" accept="image/*" style="display: none;">
+                                        <p id="file-name"></p>
+                                    </div>
+                                    <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="submitButton" type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">
+                            <span id="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                            <span id="buttonText">Submit</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <div class="row mx-2 g-3 justify-content-center">
+                {% for product in products %}
+                    <!-- product update button -->
+                    <div role="button" name="productContainer" class="content-container d-flex justify-content-center" data-bs-toggle="modal" data-bs-target="#productUpdate{{ product.id }}">
+                        <div class="card shadow" style="transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0px)'">
+                            <img src="data:image/jpeg;base64,{{ product.image_data }}" class="card-img-top img-fluid" style="height: 150px;" alt="...">
+                            <div class="card-body">
+                              <h5 class="card-title text-secondary fw-semibold" style="font-size: small;">{{ product.product_name }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- modal for product update -->
+                    <div class="modal fade" id="productUpdate{{ product.id }}" tabindex="-1" aria-labelledby="productUpdateLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h1 class="modal-title fs-5" id="productUpdateLabel">Update Product</h1>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="container-fluid">
+                                    <!-- modal form -->
+                                    <form class="row text-start g-3">
+                                        <div class="col-12">
+                                            <label for="productId" class="form-label fw-medium">Product Id</label>
+                                            <input type="number" name="product_id" class="form-control" id="productId" value="{{ product.id }}" readonly>
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="productName" class="form-label fw-medium">Product Name</label>
+                                            <input type="text" name="product_name" class="form-control" id="productName">
+                                        </div>
+                                        <div class="col-12">
+                                            <div style="border:2px dashed; cursor: pointer;" class="w-100 d-flex flex-column justify-content-center align-items-center" name="upload-container">
+                                                <p>Drag & Drop or Click or Paste an Image Here</p>
+                                                <input type="file" name="image_data" accept="image/*" style="display: none;">
+                                                <p name="file-name"></p>
+                                            </div>
+                                            <div name="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary rounded-pill" onclick="updateSubmitForm()">
+                                    <span element-name="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                                    <span element-name="buttonText">Submit</span>
+                                </button>
+                                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                            </div>
+                          </div>
+                        </div>
+                    </div>    
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered products</h3></div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+        <script>
+            // js for updating product
+            const searchInput = document.getElementById('searchInput');
+            const productContainers = document.querySelectorAll('div[name="productContainer"]');
+            const modals = document.querySelectorAll('div.modal.fade');
+            modals.forEach(modal=>{
+                modal.addEventListener('show.bs.modal', ()=>{
+                    const dropArea = modal.querySelector('div[name="upload-container"]');
+                    const fileInput = modal.querySelector('input[name="image_data"]');
+                    const fileName = modal.querySelector('p[name="file-name"]');
+
+                    dropArea.addEventListener('click', () => fileInput.click());
+                    fileInput.addEventListener('change', (event) => {
+                        const file = event.target.files[0];
+                        if (file && file.type.startsWith('image/')) {
+                            fileName.textContent = file.name;
+                        }
+                    });
+
+                    document.addEventListener('paste', (event) => {
+                        const items = (event.clipboardData || window.clipboardData).items;
+                        for (let item of items) {
+                            if (item.type.startsWith("image/")) {
+                                const blob = item.getAsFile();
+                                if (blob) {
+                                    const file = new File([blob], `${blob.name}`, { type: blob.type });
+                                    
+                                    // Create a new DataTransfer object to assign the file to input
+                                    const dataTransfer = new DataTransfer();
+                                    dataTransfer.items.add(file);
+                                    fileInput.files = dataTransfer.files; // Assign the new file
+
+                                    fileName.textContent = file.name; // Update UI
+                                }
+                            }
+                        }
+                    });
+                    dropArea.addEventListener('dragover', (event) => {
+                        event.preventDefault();
+                        dropArea.classList.add("border-success");
+                    });
+
+                    dropArea.addEventListener('dragleave', () => {
+                        dropArea.classList.remove("border-success");
+                    });
+
+                    dropArea.addEventListener('drop', (event) => {
+                        event.preventDefault();
+                        dropArea.classList.remove("border-success");
+
+                        if (event.dataTransfer.files.length > 0) {
+                            const file = event.dataTransfer.files[0];
+                            handleFile(file,fileName);
+
+                            // Assign file to input field
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+                            fileInput.files = dataTransfer.files;
+                        }
+                    });
+
+                });
+            });
+
+            // Function to handle file display
+            function handleFile(file, fileName) {
+                if (file && file.type.startsWith('image/')) {
+                    fileName.textContent = file.name;
+                } else {
+                    fileName.textContent = "Invalid file type";
+                }
+            }
+
+
+            document.addEventListener('DOMContentLoaded', ()=>{
+                inputEventListernerFunction();
+            });
+
+            function inputEventListernerFunction() {
+                searchInput.addEventListener('input', ()=>{
+                    let value = searchInput.value.trim().toLocaleLowerCase();
+                    activate(value);
+                });
+            }
+
+            function activate(value) {
+                Array.from(productContainers).forEach(productContainer=>{
+                    let productName = productContainer.querySelector('.card-title.text-secondary.fw-semibold').innerHTML.trim().toLocaleLowerCase();
+
+                    if (value !== '') {
+                        if (productName.includes(value)) {
+                            productContainer.classList.remove('d-none');
+                        }else {
+                            productContainer.classList.add('d-none');
+                        }  
+                    }else if (value === '') {
+                        productContainer.classList.remove('d-none');
+                    }
+                });
+            }
+
+            async function updateSubmitForm() {
+                document.getElementById('opaque').classList.remove('d-none');
+                const form = document.querySelector('div.modal.fade.show form');
+
+                const spinner = document.querySelector('div.modal.fade.show span[element-name="spinner"]');
+                const buttonText = document.querySelector('div.modal.fade.show span[element-name="buttonText"]');
+
+                spinner.classList.remove('d-none'); // Show spinner
+                buttonText.style.display = 'none'; // Hide text
+
+                const formData = new FormData(form);
+
+                const url = "/product/update";
+                
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        form.querySelector('input[type="text"]').value = '';
+                        form.querySelector('input[type="file"]').value = '';
+                        form.querySelector('div[name="notice"]').innerHTML = errorData.detail;
+                        spinner.classList.add('d-none'); // Hide spinner
+                        buttonText.style.display = ''; // Show text
+                        document.getElementById('opaque').classList.add('d-none');
+                        return;
+                    }
+
+
+                    const result = await response.json();
+
+                    alert(result.detail);
+                    window.location.reload();
+                } catch (error) {
+                    spinner.classList.add('d-none'); // Hide spinner
+                    buttonText.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    alert(error);
+                }  
+            }
+
+            // js for adding new product
+            const dropArea = document.getElementById('upload-container');
+            const fileInput = document.getElementById('fileInput');
+            const fileName = document.getElementById('file-name');
+
+            dropArea.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    fileName.textContent = file.name;
+                }
+            });
+
+            document.addEventListener('paste', (event) => {
+                const items = (event.clipboardData || window.clipboardData).items;
+                for (let item of items) {
+                    if (item.type.startsWith("image/")) {
+                        const blob = item.getAsFile();
+                        if (blob) {
+                            const file = new File([blob], `${blob.name}`, { type: blob.type });
+                            
+                            // Create a new DataTransfer object to assign the file to input
+                            const dataTransfer = new DataTransfer();
+                            dataTransfer.items.add(file);
+                            fileInput.files = dataTransfer.files; // Assign the new file
+
+                            fileName.textContent = file.name;
+                        }
+                    }
+                }
+                
+            });
+
+            dropArea.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                dropArea.classList.add("border-success");
+            });
+
+            dropArea.addEventListener('dragleave', () => {
+                dropArea.classList.remove("border-success");
+            });
+
+            dropArea.addEventListener('drop', (event) => {
+                event.preventDefault();
+                dropArea.classList.remove("border-success");
+
+                if (event.dataTransfer.files.length > 0) {
+                    const file = event.dataTransfer.files[0];
+                    handleFile(file);
+
+                    // Assign file to input field
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    fileInput.files = dataTransfer.files;
+                }
+            });
+
+            // Function to handle file display
+            function handleFile(file) {
+                if (file && file.type.startsWith('image/')) {
+                    fileName.textContent = file.name;
+                } else {
+                    fileName.textContent = "Invalid file type";
+                }
+            }
+
+            async function submitForm() {
+
+                document.getElementById('opaque').classList.remove('d-none');
+
+                const spinner = document.getElementById('spinner');
+                const buttonText = document.getElementById('buttonText');
+                
+                spinner.classList.remove('d-none'); // Show spinner
+                buttonText.style.display = 'none'; // Hide text
+
+                const form = document.getElementById('myForm');
+
+                const formData = new FormData(form);
+
+                const url = "/product/add";
+
+                if (document.getElementById('productName').value === '') {
+                    document.getElementById('notice').innerHTML = "Please enter the product name";
+                    spinner.classList.add('d-none'); // Hide spinner
+                    buttonText.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(url, {
+                        method:'POST',
+                        body: formData
+                    });
+                    console.log(response);
+                    if (!response.ok) {
+
+                        const errorData = await response.json();
+                        document.querySelector('input[type="text"]').value = '';
+                        document.querySelector('input[type="file"]').value = '';
+                        fileName.innerHTML = "";
+                        document.getElementById('notice').innerHTML = errorData.detail;
+                        spinner.classList.add('d-none'); // Hide spinner
+                        buttonText.style.display = ''; // Show text
+                        document.getElementById('opaque').classList.add('d-none');
+                        return;
+                    }
+
+                    const result = await response.json();
+                    alert(result.detail);
+                    window.location.reload();
+
+                } catch (error) {
+                    spinner.classList.add('d-none'); // Hide spinner
+                    buttonText.style.display = ''; // Show text
+                    document.getElementById('opaque').classList.add('d-none');
+                    alert(`Network Error: ${error.message}`);
+                }
+            }
+
+        </script>
+{% endblock %}

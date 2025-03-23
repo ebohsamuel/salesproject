@@ -1,0 +1,58 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+    <div class="container-md mt-5">
+        <div class="col-12">
+            <div class="table-responsive">
+                <table class="table align-middle table-hover caption-top">
+                    <caption>Summary</caption>
+                    <!-- the table will be filled dynamically -->
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const table = document.querySelector('table');
+        const tableHead = document.createElement('thead');
+        tableHead.classList.add('table-dark');
+        tableHead.innerHTML = `
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Product Name</th>
+                <th scope="col">Stock Balance</th>
+            </tr>
+        `;
+        let tableBody = document.createElement('tbody');
+        tableBody.classList.add('table-group-divider');
+        let html = ''
+        const stock_alert = JSON.parse(localStorage.getItem('stock_alert')) || [];
+        Array.from(stock_alert).forEach((arr, index) => {
+            html += `
+                <tr>
+                    <th scope="row">${index + 1}</th>
+                    <td>${arr.product_name}</td>
+                    <td>${arr.available_stock}</td>
+                </tr>
+            `;
+        });
+        tableBody.innerHTML = html;
+        let total = 0;
+        Array.from(stock_alert).forEach(arr => {
+            total += Number(arr.available_stock) || 0;
+        });
+        const tableFooter = document.createElement('tfoot');
+        tableFooter.innerHTML = `
+            <th scope="row" colspan="2">Total</th>
+            <th scope="row">${total}</th>
+        `;
+        const fragment = document.createDocumentFragment();
+        fragment.appendChild(tableHead);
+        fragment.appendChild(tableBody);
+        fragment.appendChild(tableFooter);
+        table.appendChild(fragment);
+        localStorage.removeItem('stock_alert');
+    </script>
+{% endblock %}
