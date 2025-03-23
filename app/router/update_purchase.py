@@ -13,9 +13,16 @@ router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 
 @router.get("/purchase-update")
-async def purchase_update(request: Request, db: AsyncSession = Depends(get_db)):
+async def purchase_update(
+        request: Request,
+        db: AsyncSession = Depends(get_db),
+        user: schema_user.User = Depends(get_current_active_user)
+):
     purchases = await crud_purchase.get_all_purchase(db)
-    return template.TemplateResponse("purchase-update.html", {"request": request, "purchases": purchases})
+    return template.TemplateResponse(
+        "purchase-update.html",
+        {"request": request, "purchases": purchases, "full_name": user.fullname}
+    )
 
 
 @router.get("/purchase-data")

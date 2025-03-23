@@ -148,6 +148,9 @@
         #backToBottom:hover {
             background-color: #555;
         }
+        #user {
+            font-size: 30px;
+        }
     </style>
     {% block style %} {% endblock %}
 </head>
@@ -158,8 +161,12 @@
     <div class="topBar">
         <div class="menu-toggle">☰</div>
         <span class="companyName">Jackson Management System</span>
+        <div class="d-none d-xl-flex flex-row position-absolute align-items-center" style="top: 0; right: 15px; height: inherit;">
+            <span class="me-2 fw-semibold">{{ full_name }}</span>
+            <i id="user" class="bi bi-person-circle"></i>
+        </div>
     </div>
-    <div class="navigation">
+    <div class="navigation rounded-end">
         <span class="btn-close btn-close-white"></span>
         <a href="/dashboard" class="fw-bold"><i class="bi bi-speedometer2"></i> Dashboard</a>
         <hr class="text-white">
@@ -191,6 +198,11 @@
         <hr class="text-white">
         <a href="/user" class="d-block"><i class="bi bi-person"></i> User</a>
         <a href="/logout" class="d-block">Logout</a>
+        <hr class="text-white">
+        <div class="d-flex d-xl-none flex-column-reverse position-absolute align-items-center text-white" style="top: 500px; right: 100px;">
+            <span class="me-2 fw-semibold">{{ full_name }}</span>
+            <i id="user" class="bi bi-person-circle"></i>
+        </div>
     </div>
     <!-- content -->
     <div class="content mt-5">

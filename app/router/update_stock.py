@@ -1,5 +1,5 @@
 from fastapi import Request, Depends
-from app.authentication import get_db, check_manager
+from app.authentication import get_db, check_manager, get_current_active_user
 from app.authentication import template
 from fastapi import APIRouter, Form
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,9 +10,13 @@ router = APIRouter()
 
 
 @router.get("/stock")
-async def stock(request: Request, db: AsyncSession = Depends(get_db)):
+async def stock(
+        request: Request,
+        db: AsyncSession = Depends(get_db),
+        user: schema_user.User = Depends(get_current_active_user)
+):
     stocks = await crud_stock.get_all_stocks(db)
-    return template.TemplateResponse("stock.html", {"request": request, "stocks": stocks})
+    return template.TemplateResponse("stock.html", {"request": request, "stocks": stocks, "full_name": user.fullname})
 
 
 @router.post("/stock/update")

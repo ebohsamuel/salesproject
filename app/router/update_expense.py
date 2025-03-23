@@ -10,9 +10,16 @@ router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 
 @router.get("/expenses")
-async def expense(request: Request, db: AsyncSession = Depends(get_db)):
+async def expense_(
+        request: Request,
+        db: AsyncSession = Depends(get_db),
+        user: schema_user.User = Depends(get_current_active_user)
+):
     expenses = await crud_expense.get_expenses(db)
-    return template.TemplateResponse("expenses.html", {"request": request, "expenses": expenses})
+    return template.TemplateResponse(
+        "expenses.html",
+        {"request": request, "expenses": expenses, "full_name": user.fullname}
+    )
 
 
 @router.get("/expense-data")

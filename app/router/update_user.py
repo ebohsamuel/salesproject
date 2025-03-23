@@ -8,9 +8,16 @@ router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 
 @router.get("/user")
-async def user_data(request: Request, db: AsyncSession = Depends(get_db)):
+async def user_data(
+        request: Request,
+        db: AsyncSession = Depends(get_db),
+        user: schema_user.User = Depends(get_current_active_user)
+):
     users = await crud_user.get_users(db)
-    return template.TemplateResponse("user.html", {"request": request, "users": users})
+    return template.TemplateResponse(
+        "user.html",
+        {"request": request, "users": users, "full_name": user.fullname}
+    )
 
 
 @router.post("/user-update")

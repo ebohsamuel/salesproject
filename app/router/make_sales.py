@@ -13,7 +13,11 @@ router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 
 @router.get("/sales")
-async def sales(request: Request, db: AsyncSession = Depends(get_db)):
+async def sales(
+        request: Request,
+        db: AsyncSession = Depends(get_db),
+        user: schema_user.User = Depends(get_current_active_user)
+):
     products = await crud_product.get_all_product(db)
     render_products = []
     for product in products:
@@ -27,12 +31,18 @@ async def sales(request: Request, db: AsyncSession = Depends(get_db)):
                 "price": product.stock.price,
                 "available": product.stock.available_stock
             })
-    return template.TemplateResponse("sales.html", {"request": request, "products": render_products})
+    return template.TemplateResponse(
+        "sales.html",
+        {"request": request, "products": render_products, "full_name": user.fullname}
+    )
 
 
 @router.get("/sales-summary")
 async def sales_summary(request: Request, user: schema_user.User = Depends(get_current_active_user)):
-    return template.TemplateResponse("sales-summary.html", {"request": request, "email": user.email})
+    return template.TemplateResponse(
+        "sales-summary.html",
+        {"request": request, "email": user.email, "full_name": user.fullname}
+    )
 
 
 @router.post("/sales/add")

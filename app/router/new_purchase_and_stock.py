@@ -14,7 +14,11 @@ router = APIRouter(dependencies=[Depends(get_current_active_user)])
 
 
 @router.get("/purchase/add")
-async def product_list(request: Request, db: AsyncSession = Depends(get_db)):
+async def product_list(
+        request: Request,
+        db: AsyncSession = Depends(get_db),
+        user: schema_user.User = Depends(get_current_active_user)
+):
     products = await crud_product.get_all_product(db)
 
     render_products = []
@@ -26,7 +30,10 @@ async def product_list(request: Request, db: AsyncSession = Depends(get_db)):
             "product_name": product.product_name
         })
         await asyncio.sleep(0)
-    return template.TemplateResponse("purchase-add.html", {"request": request, "products": render_products})
+    return template.TemplateResponse(
+        "purchase-add.html",
+        {"request": request, "products": render_products, "full_name": user.fullname}
+    )
 
 
 @router.post("/purchase-add")
