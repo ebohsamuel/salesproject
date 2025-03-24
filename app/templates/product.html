@@ -129,10 +129,12 @@
             const productContainers = document.querySelectorAll('div[name="productContainer"]');
             const modals = document.querySelectorAll('div.modal.fade');
             modals.forEach(modal=>{
-                modal.addEventListener('show.bs.modal', ()=>{
-                    const dropArea = modal.querySelector('div[name="upload-container"]');
-                    const fileInput = modal.querySelector('input[name="image_data"]');
-                    const fileName = modal.querySelector('p[name="file-name"]');
+                modal.addEventListener('shown.bs.modal', ()=>{
+                    const modalShow = document.querySelector('div.modal.fade.show');
+                    
+                    const dropArea = modalShow.querySelector('div[name="upload-container"]');
+                    const fileInput = modalShow.querySelector('input[name="image_data"]');
+                    const fileName = modalShow.querySelector('p[name="file-name"]');
 
                     dropArea.addEventListener('click', () => fileInput.click());
                     fileInput.addEventListener('change', (event) => {
