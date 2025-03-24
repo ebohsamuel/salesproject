@@ -74,7 +74,7 @@
                         </div>
                     </div>
                     <!-- modal for product update -->
-                    <div class="modal fade" id="productUpdate{{ product.id }}" tabindex="-1" aria-labelledby="productUpdateLabel" aria-hidden="true">
+                    <div class="modal fade update" id="productUpdate{{ product.id }}" tabindex="-1" aria-labelledby="productUpdateLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
                           <div class="modal-content">
                             <div class="modal-header">
@@ -127,10 +127,10 @@
             // js for updating product
             const searchInput = document.getElementById('searchInput');
             const productContainers = document.querySelectorAll('div[name="productContainer"]');
-            const modals = document.querySelectorAll('div.modal.fade');
+            const modals = document.querySelectorAll('div.modal.fade.update');
             modals.forEach(modal=>{
                 modal.addEventListener('shown.bs.modal', ()=>{
-                    const modalShow = document.querySelector('div.modal.fade.show');
+                    const modalShow = document.querySelector('div.modal.fade.update.show');
                     
                     const dropArea = modalShow.querySelector('div[name="upload-container"]');
                     const fileInput = modalShow.querySelector('input[name="image_data"]');
