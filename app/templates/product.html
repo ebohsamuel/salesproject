@@ -132,15 +132,15 @@
                 modal.addEventListener('shown.bs.modal', ()=>{
                     const modalShow = document.querySelector('div.modal.fade.update.show');
                     
-                    const dropArea = modalShow.querySelector('div[name="upload-container"]');
-                    const fileInput = modalShow.querySelector('input[name="image_data"]');
-                    const fileName = modalShow.querySelector('p[name="file-name"]');
+                    const dropAreaUpdate = modalShow.querySelector('div[name="upload-container"]');
+                    const fileInputUpdate = modalShow.querySelector('input[name="image_data"]');
+                    const fileNameUpdate = modalShow.querySelector('p[name="file-name"]');
 
-                    dropArea.addEventListener('click', () => fileInput.click());
-                    fileInput.addEventListener('change', (event) => {
+                    dropAreaUpdate.addEventListener('click', () => fileInputUpdate.click());
+                    fileInputUpdate.addEventListener('change', (event) => {
                         const file = event.target.files[0];
                         if (file && file.type.startsWith('image/')) {
-                            fileName.textContent = file.name;
+                            fileNameUpdate.textContent = file.name;
                         }
                     });
 
@@ -155,34 +155,34 @@
                                     // Create a new DataTransfer object to assign the file to input
                                     const dataTransfer = new DataTransfer();
                                     dataTransfer.items.add(file);
-                                    fileInput.files = dataTransfer.files; // Assign the new file
+                                    fileInputUpdate.files = dataTransfer.files; // Assign the new file
 
-                                    fileName.textContent = file.name; // Update UI
+                                    fileNameUpdate.textContent = file.name; // Update UI
                                 }
                             }
                         }
                     });
-                    dropArea.addEventListener('dragover', (event) => {
+                    dropAreaUpdate.addEventListener('dragover', (event) => {
                         event.preventDefault();
-                        dropArea.classList.add("border-success");
+                        dropAreaUpdate.classList.add("border-success");
                     });
 
-                    dropArea.addEventListener('dragleave', () => {
-                        dropArea.classList.remove("border-success");
+                    dropAreaUpdate.addEventListener('dragleave', () => {
+                        dropAreaUpdate.classList.remove("border-success");
                     });
 
-                    dropArea.addEventListener('drop', (event) => {
+                    dropAreaUpdate.addEventListener('drop', (event) => {
                         event.preventDefault();
-                        dropArea.classList.remove("border-success");
+                        dropAreaUpdate.classList.remove("border-success");
 
                         if (event.dataTransfer.files.length > 0) {
                             const file = event.dataTransfer.files[0];
-                            handleFile(file,fileName);
+                            handleFileUpdate(file,fileNameUpdate);
 
                             // Assign file to input field
                             const dataTransfer = new DataTransfer();
                             dataTransfer.items.add(file);
-                            fileInput.files = dataTransfer.files;
+                            fileInputUpdate.files = dataTransfer.files;
                         }
                     });
 
@@ -190,11 +190,11 @@
             });
 
             // Function to handle file display
-            function handleFile(file, fileName) {
+            function handleFileUpdate(file, fileNameUpdate) {
                 if (file && file.type.startsWith('image/')) {
-                    fileName.textContent = file.name;
+                    fileNameUpdate.textContent = file.name;
                 } else {
-                    fileName.textContent = "Invalid file type";
+                    fileNameUpdate.textContent = "Invalid file type";
                 }
             }
 

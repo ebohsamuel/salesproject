@@ -161,7 +161,7 @@
 <body class="position-relative">
     <button id="backToTop"><i class="bi bi-arrow-up"></i></button>
     <button id="backToBottom"><i class="bi bi-arrow-down"></i></i></button>
-    <div id="opaque" class="position-absolute d-none bg-light" style="top: 0; left: 0; height: 100%; width: 100%; opacity: 0.3; z-index: 100000;"></div>
+    <div id="opaque" class="position-fixed d-none bg-light" style="top: 0; left: 0; height: 100dvh; width: 100dvw; opacity: 0.3; z-index: 9999999;"></div>
     <div class="topBar">
         <div class="menu-toggle">☰</div>
         <span class="companyName">Jackson Management System</span>
@@ -172,8 +172,13 @@
     </div>
     <div class="navigation rounded-end">
         <span class="btn-close btn-close-white"></span>
-        <a href="/dashboard" class="fw-bold d-block"><i class="bi bi-speedometer2"></i> Dashboard</a>
-        <hr class="text-white">
+        <div class="d-flex d-xl-none flex-row-reverse position-absolute align-items-center text-white" style="top: 5px; left: 5px;">
+            <span class="ms-2 fw-semibold">{{ full_name }}</span>
+            <i id="user" class="bi bi-person-circle"></i>
+        </div>
+        <a href="/dashboard" class="fw-bold d-none d-xl-block"><i class="bi bi-speedometer2"></i> Dashboard</a>
+        <hr class="text-white mt-5 mt-xl-0">
+        <a href="/dashboard" class="d-block d-xl-none"><i class="bi bi-speedometer2"></i> Dashboard</a>
         <a href="/product" class="d-block"><i class="bi bi-box"></i> Product</a>
         <div class="btn-group dropend" style="width: inherit;">
             <a class="d-block dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-cart-plus-fill"></i> Purchase</a>
@@ -202,11 +207,6 @@
         <hr class="text-white">
         <a href="/user" class="d-block"><i class="bi bi-person"></i> User</a>
         <a href="/logout" class="d-block"><i class="bi bi-box-arrow-right"></i> Logout</a>
-        <hr class="text-white d-xl-none">
-        <div class="d-flex d-xl-none flex-column-reverse position-absolute align-items-center text-white" style="top: 500px; left: 5px;">
-            <span class="me-2 fw-semibold">{{ full_name }}</span>
-            <i id="user" class="bi bi-person-circle"></i>
-        </div>
     </div>
     <!-- content -->
     <div class="content mt-5">
@@ -255,10 +255,17 @@
             });
         }
 
+        document.addEventListener('click', (e) => {
+            if (navigation.classList.contains('show') && !navigation.contains(e.target) && !menuToggle.contains(e.target)) {
+                navigation.classList.remove('show');
+                menuToggle.style.display = 'flex';
+            }
+        });
+
         function toggleFunction() {
             menuToggle.addEventListener('click', function() {
                 navigation.classList.add('show');
-                menuToggle.style.display = 'none';
+                menuToggle.style.display = 'none';  
             });
         }
 
@@ -311,6 +318,7 @@
         lowStockAlert.addEventListener('click', ()=>{
             document.getElementById('opaque').classList.remove('d-none');
             window.location.href = "/stock-alert";
+            document.getElementById('opaque').classList.add('d-none');
         });
 
         const colors = [
