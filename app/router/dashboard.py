@@ -40,8 +40,3 @@ async def dashboard_report(date_str: str | None = None, db: AsyncSession = Depen
         })
 
     return {"purchases": purchases_, "sales": orders, "expenses": expenses, "stock_alert": stocks_}
-
-
-@router.get("/stock-alert")
-async def stock_alert(request: Request):
-    return template.TemplateResponse("stock-alert.html", {"request": request})
