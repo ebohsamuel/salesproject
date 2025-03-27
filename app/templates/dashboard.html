@@ -181,30 +181,42 @@
         <hr class="text-white mt-5 mt-xl-0">
         <a href="/dashboard" class="d-block d-xl-none"><i class="bi bi-speedometer2"></i> Dashboard</a>
         <a href="/product" class="d-block"><i class="bi bi-box"></i> Product</a>
-        <div class="btn-group dropend" style="width: inherit;">
-            <a class="d-block dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-cart-plus-fill"></i> Purchase</a>
-            <ul class="dropdown-menu dropdown-menu-dark">
-                <li><a class="dropdown-item" href="/purchase/add">Add Purchase <i class="bi bi-plus"></i></a></li>
-                <li><a class="dropdown-item" href="/purchase-update">Update Purchase</a></li>
-            </ul>            
+
+        <a class="d-block dropdown-toggle" data-bs-toggle="collapse" href="#purchase" aria-expanded="false" aria-controls="purchase"><i class="bi bi-cart-plus-fill"></i> Purchase</a>
+        <div class="collapse" id="purchase">
+            <div class="card card-body text-bg-dark">
+                <ul class="ps-0">
+                    <li style="list-style: none;"><a class="dropdown-item" href="/purchase/add">Add Purchase <i class="bi bi-plus"></i></a></li>
+                    <li style="list-style: none;"><a class="dropdown-item" href="/purchase-update">Update Purchase</a></li>
+                </ul>  
+            </div>
         </div>
+
         <a href="/stock" class="d-block"><i class="bi bi-archive"></i> Stock</a>
-        <div class="btn-group dropend" style="width: inherit;">
-            <a class="d-block dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-bag-check"></i> Order</a>
-            <ul class="dropdown-menu dropdown-menu-dark">
-                <li><a class="dropdown-item" href="/sales">New Order</a></li>
-                <li><a class="dropdown-item" href="/sales-update">Update Order</a></li>
-            </ul>            
+
+        <a class="d-block dropdown-toggle" data-bs-toggle="collapse" href="#order" aria-expanded="false" aria-controls="order"><i class="bi bi-bag-check"></i> Order</a>
+        <div class="collapse" id="order">
+            <div class="card card-body text-bg-dark">
+                <ul class="ps-0">
+                    <li style="list-style: none;"><a class="dropdown-item" href="/sales">New Order</a></li>
+                    <li style="list-style: none;"><a class="dropdown-item" href="/sales-update">Update Order</a></li>
+                </ul> 
+            </div>
         </div>
+
         <a href="/expenses" class="d-block"><i class="bi bi-cash-stack"></i> Expenses</a>
-        <div class="btn-group dropend" style="width: inherit;">
-            <a class="d-block dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-file-earmark-bar-graph"> </i>Report</a>
-            <ul class="dropdown-menu dropdown-menu-dark">
-                <li><a class="dropdown-item" href="/sales-report">Sales</a></li>
-                <li><a class="dropdown-item" href="/purchase-report">Purchases</a></li>
-                <li><a class="dropdown-item" href="/expense-report">Expenses</a></li>
-            </ul>            
+
+        <a class="d-block dropdown-toggle" data-bs-toggle="collapse" href="#report" aria-expanded="false" aria-controls="report"><i class="bi bi-file-earmark-bar-graph"> </i>Report</a>
+        <div class="collapse" id="report">
+            <div class="card card-body text-bg-dark">
+                <ul class="ps-0">
+                    <li style="list-style: none;"><a class="dropdown-item" href="/sales-report">Sales</a></li>
+                    <li style="list-style: none;"><a class="dropdown-item" href="/purchase-report">Purchases</a></li>
+                    <li style="list-style: none;"><a class="dropdown-item"  href="/expense-report">Expenses</a></li>
+                </ul>
+            </div>
         </div>
+
         <hr class="text-white">
         <a href="/user" class="d-block"><i class="bi bi-person"></i> User</a>
         <a href="/logout" class="d-block"><i class="bi bi-box-arrow-right"></i> Logout</a>
