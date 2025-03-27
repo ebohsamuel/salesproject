@@ -56,7 +56,7 @@
                         <div class="content-container d-flex justify-content-center" name="cardContainer">
                             <div class="card shadow" style="transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0px)'">
                                 <img src="data:image/jpeg;base64,{{ product.image_data }}" class="card-img-top img-fluid" style="height: 150px;" alt="...">
-                                <div class="card-body">
+                                <div class="card-body item">
                                   <h5 class="card-title fw-bold text-secondary" style="font-size: small;">{{ product.product_name }}</h5>
                                   <p class="card-text fw-semibold text-secondary" style="font-size: small;">price: <span name="price">{{ "{:,.2f}".format(product.price) if product.price is not none else "n/a" }}</span></p>
                                   <p class="card-text fw-semibold text-secondary" style="font-size: small;">qty: <span name="available_stock">{{ product.available }}</span></p>
@@ -78,7 +78,7 @@
         const cartButtons = document.querySelectorAll('a[role="button"]');
         const count = document.getElementById('count');
         const cartTable = document.getElementById('cartTable');
-        const cardBody = document.querySelectorAll('.card-body');
+        const cardBody = document.querySelectorAll('.card-body.item');
         const checkoutButton = document.querySelector('button[name="checkoutButton"]');
         const searchInput = document.getElementById('searchInput');
         const cardContainers = document.querySelectorAll('div[name="cardContainer"]');
