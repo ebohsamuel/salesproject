@@ -350,12 +350,13 @@
                 let saleYear = new Date(sale.order_date).getFullYear();
                 return saleYear === currentYear;
             });
-            let monthlySalesSum = {};
+            let monthlySalesSum = Array(12).fill(0);
             filteredSales.forEach(sale => {
                 let month = new Date(sale.order_date).getMonth();
-                monthlySalesSum[month] = (monthlySalesSum[month] || 0) + sale.total_amount;
+                monthlySalesSum[month] = monthlySalesSum[month] + sale.total_amount;
             });
             monthlySalesRecord  = Object.values(monthlySalesSum);
+            
 
 
             // getting the monthly purchase record for the current year
@@ -363,10 +364,10 @@
                 let purchaseYear = new Date(purchase.purchase_date).getFullYear();
                 return purchaseYear === currentYear;
             });
-            let monthlyPurchaseSum = {};
+            let monthlyPurchaseSum = Array(12).fill(0);
             filteredPurchases.forEach(purchase => {
                 let month = new Date(purchase.purchase_date).getMonth();
-                monthlyPurchaseSum[month] = (monthlyPurchaseSum[month] || 0) + purchase.total_cost;
+                monthlyPurchaseSum[month] = monthlyPurchaseSum[month] + purchase.total_cost;
             });
             monthlyPurchaseRecord = Object.values(monthlyPurchaseSum);
 
@@ -376,10 +377,10 @@
                 let expenseYear = expense.expense_date ? new Date(expense.expense_date).getFullYear() : 0;
                 return expenseYear === currentYear;
             });
-            let monthlyExpensesSum = {};
+            let monthlyExpensesSum = Array(12).fill(0);
             filteredExpenses.forEach(expense => {
                 let month = new Date(expense.expense_date).getMonth();
-                monthlyExpensesSum[month] = (monthlyExpensesSum[month] || 0) + (expense.amount || 0);
+                monthlyExpensesSum[month] = monthlyExpensesSum[month] + (expense.amount || 0);
             });
             monthlyExpensesRecord = Object.values(monthlyExpensesSum);
             
