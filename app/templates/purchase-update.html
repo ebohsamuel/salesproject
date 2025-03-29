@@ -117,6 +117,16 @@
         const yearPattern = /^\d{4}$/;  // YYYY
         const yearMonthPattern = /^\d{4}-(0[1-9]|1[0-2])$/;  // YYYY-MM
         const fullDatePattern = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/; // YYYY-MM-DD
+        const modals = document.querySelectorAll('.modal.fade');
+
+
+        modals.forEach(modal => {
+            modal.addEventListener('shown.bs.modal', function() {
+                const purchaseDate = modal.querySelector('input[name="purchase_date"]');
+                purchaseDate.max = new Date().toISOString().split('T')[0];
+            })
+        });
+            
 
         function createTableFunction(tableArray) {
             const tableCover = document.querySelector('.table-responsive');

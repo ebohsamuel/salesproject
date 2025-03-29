@@ -173,7 +173,7 @@
     </div>
     <div class="navigation rounded-end">
         <span class="btn-close btn-close-white"></span>
-        <div class="d-flex d-xl-none flex-row-reverse position-absolute align-items-center text-white" style="top: 5px; left: 5px;">
+        <div class="d-flex d-xl-none flex-row-reverse position-absolute align-items-center text-white" style="top: 5px; left: 5px;"  role="button" data-bs-toggle="collapse" data-bs-target=".multi-collapse" aria-expanded="false" aria-controls="purchase order report">
             <span class="ms-2 fw-semibold">{{ full_name }}</span>
             <i id="user" class="bi bi-person-circle"></i>
         </div>
@@ -183,7 +183,7 @@
         <a href="/product" class="d-block"><i class="bi bi-box"></i> Product</a>
 
         <a class="d-block dropdown-toggle" data-bs-toggle="collapse" href="#purchase" aria-expanded="false" aria-controls="purchase"><i class="bi bi-cart-plus-fill"></i> Purchase</a>
-        <div class="collapse" id="purchase">
+        <div class="collapse multi-collapse" id="purchase">
             <div class="card card-body text-bg-dark">
                 <ul class="ps-0">
                     <li style="list-style: none;"><a class="dropdown-item" href="/purchase/add">Add Purchase <i class="bi bi-plus"></i></a></li>
@@ -195,7 +195,7 @@
         <a href="/stock" class="d-block"><i class="bi bi-archive"></i> Stock</a>
 
         <a class="d-block dropdown-toggle" data-bs-toggle="collapse" href="#order" aria-expanded="false" aria-controls="order"><i class="bi bi-bag-check"></i> Order</a>
-        <div class="collapse" id="order">
+        <div class="collapse multi-collapse" id="order">
             <div class="card card-body text-bg-dark">
                 <ul class="ps-0">
                     <li style="list-style: none;"><a class="dropdown-item" href="/sales">New Order</a></li>
@@ -207,7 +207,7 @@
         <a href="/expenses" class="d-block"><i class="bi bi-cash-stack"></i> Expenses</a>
 
         <a class="d-block dropdown-toggle" data-bs-toggle="collapse" href="#report" aria-expanded="false" aria-controls="report"><i class="bi bi-file-earmark-bar-graph"> </i>Report</a>
-        <div class="collapse" id="report">
+        <div class="collapse multi-collapse" id="report">
             <div class="card card-body text-bg-dark">
                 <ul class="ps-0">
                     <li style="list-style: none;"><a class="dropdown-item" href="/sales-report">Sales</a></li>

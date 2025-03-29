@@ -102,6 +102,17 @@
             const selectors = document.querySelectorAll('div[selector="purchaseButton"]');
             const searchInput = document.getElementById('searchInput');
             const productContainers = document.querySelectorAll('div[name="productContainer"]');
+            const modals = document.querySelectorAll('.modal.fade');
+
+
+
+            modals.forEach(modal => {
+                modal.addEventListener('shown.bs.modal', function() {
+                    const purchaseDate = modal.querySelector('input[name="purchase_date"]');
+                    purchaseDate.max = new Date().toISOString().split('T')[0];
+                })
+            });
+            
 
             document.addEventListener('DOMContentLoaded', ()=>{
                 inputEventListernerFunction();
