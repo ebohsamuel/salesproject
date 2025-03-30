@@ -12,7 +12,7 @@
             top: 0;
             left: 0;
             height: 100dvh;
-            width: 250px;
+            width: 200px;
             background-color: #343a40;
             padding-top: 20px;
             overflow-y: auto;
@@ -58,8 +58,8 @@
         }
         .content {
             margin-top: 10px;
-            margin-right: 5px;
-            margin-left: 275px;
+            margin-right: 2px;
+            margin-left: 202px;
             overflow-x: auto;
         }
         .topBar {
@@ -71,7 +71,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-left: 250px;
+            margin-left: 200px;
             z-index: 1000;
         }
         .companyName {
@@ -83,13 +83,13 @@
                 font-size: 30px;
             }
             .navigation {
-                left: -250px;
+                left: -200px;
             }
             .topBar {
                 margin-left: 0;
             }
             .content {
-                margin-left: 5px;
+                margin-left: 2px;
             }
             .menu-toggle {
                 display: flex;
@@ -157,7 +157,73 @@
             background: #333;
         }
     </style>
-    {% block style %} {% endblock %}
+    {% block style %} 
+    <style>
+        @keyframes slideInOdd {
+            from {
+                transform: translateX(-100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideInEven {
+            from {
+                transform: translateX(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes inputSearchSlideIn {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .dashboardInputSearch {
+            animation: inputSearchSlideIn 0.8s ease-out 0.8s 1 normal forwards;
+            opacity: 0;
+        }
+
+        .dashboardRow > div:nth-child(odd) {
+            animation: slideInOdd 0.8s ease-out forwards;
+            opacity: 0;
+        }
+        .dashboardRow > div:nth-child(even) {
+            animation: slideInEven 0.8s ease-out forwards;
+            opacity: 0;
+        }
+        .dashboardRow > div {
+            animation-delay: 0.8s;
+        }
+        @media (max-width: 768px) {
+            .dashboardInputSearch {
+                animation: none; /* Disable animation on smaller screens */
+                opacity: 1;
+            }
+            .dashboardRow > div:nth-child(even) {
+                animation: none; /* Disable animation on smaller screens */
+                opacity: 1;
+            }
+            .dashboardRow > div:nth-child(odd) {
+                animation: none; /* Disable animation on smaller screens */
+                opacity: 1;
+            }
+        }
+
+
+    </style>
+    {% endblock %}
 </head>
 <body class="position-relative">
     <button id="backToTop"><i class="bi bi-arrow-up"></i></button>
@@ -225,11 +291,11 @@
     <div class="content mt-5">
         <div class="container-fluid">
             {% block content %}
-            <div class="mb-5 mx-md-auto" style="max-width: 300px;">
+            <div class="mb-5 mx-md-auto dashboardInputSearch" style="max-width: 300px;">
                 <input id="inputSearch" type="text" class="form-control" placeholder="search year">
                 <div id="notice2" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
             </div>
-            <div class="row justify-content-center" style="gap: 1.5rem;">
+            <div class="row justify-content-center dashboardRow" style="gap: 1.5rem;">
                 <div class="shadow-lg fw-bold rounded border" style="height: 200px; max-width: 400px;">
                     <canvas id="salesChart" style=" font-family: sans-serif;"></canvas>
                 </div>
