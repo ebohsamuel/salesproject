@@ -46,18 +46,18 @@
 <body class="position-relative">
     <div id="opaque" class="position-absolute d-none bg-light" style="top: 0; left: 0; height: 100%; width: 100%; opacity: 0.3; z-index: 10000;"></div>
     <div class="container-fluid d-flex align-items-center justify-content-center" style="height: 100vh; background-color: gray;">
-        <div class="row border border-success rounded shadow bg-light" style="width: 60dvh;">
+        <div class="row border border-success rounded shadow" style="width: 60dvh; background-color: transparent;">
             <div class="col-12 d-flex justify-content-center mt-5 form-heading">
-                <span class="fs-4 fw-bold">Login</span>
+                <span class="fs-4 fw-bold text-white">Login</span>
             </div>
             <div class="col-12">
-                <form class="row" onsubmit="return submitForm(event)">
+                <form class="row text-white" onsubmit="return submitForm(event)">
                     <div class="col-12 mb-3 mt-5">
-                        <label for="inputEmail" class="form-label fw-medium">Email</label>
+                        <label for="inputEmail" class="form-label fw-bold">Email</label>
                         <input type="email" name="username" class="form-control" id="inputEmail" placeholder="example@gmail.com">
                     </div>
                     <div class="col-12 mb-3">
-                        <label for="inputPassword" class="form-label fw-medium">Password</label>
+                        <label for="inputPassword" class="form-label fw-bold">Password</label>
                         <div class="input-group mb-3">
                             <input type="password" name="password" id="inputPassword" class="form-control border border-end-0" aria-describedby="passwordHelpBlock">
                             <span class="input-group-text border border-start-0" id="basic-addon2" style="cursor: pointer; background-color: white;" onmouseover="this.style.backgroundColor='#e9ecef'" onmouseout="this.style.backgroundColor='white'"><i class="bi bi-eye d-none"></i><i class="bi bi-eye-slash"></i></span>
