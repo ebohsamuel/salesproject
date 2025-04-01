@@ -34,6 +34,56 @@
             animation: headingSlideIn 0.8s ease-out 0.2s 1 normal forwards;
             opacity: 0;
         }
+        .email {
+            height: 30px;
+            position: relative;
+            width: 100%;
+        }
+        label {
+            position: absolute;
+            top: 60%;
+            left: 18px;
+            transform: translateY(-50%);
+            color: #777;
+            padding: 0 5px;
+            transition: 0.3s ease-in-out;
+            background-color: white;
+        }
+        input {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            outline: none;
+            padding: 20px;
+            font-size: 16px;
+        }
+        input:focus + label, input:not(:placeholder-shown) + label {
+            font-size: 12px;
+            color: #333;
+            top: 0;
+            left: 22px;
+        }
+        .container {
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .password {
+            height: 30px;
+            position: relative;
+            width: 100%;
+            margin-top: 50px;
+        }
+        .bi {
+            position: absolute;
+            top: 0;
+            transform: translateY(70%);
+            right: 20px;
+            cursor: pointer;
+        }
         /* @media (max-width: 768px) {
             .form-heading, form > div {
                 animation: none;
@@ -46,25 +96,23 @@
 <body class="position-relative">
     <div id="opaque" class="position-absolute d-none bg-light" style="top: 0; left: 0; height: 100%; width: 100%; opacity: 0.3; z-index: 10000;"></div>
     <div class="container-fluid d-flex align-items-center justify-content-center" style="height: 100vh; background-color: transparent;">
-        <div class="row border border-success rounded shadow" style="width: 60dvh; background-color: transparent;">
-            <div class="col-12 d-flex justify-content-center mt-5 form-heading">
+        <div class="row rounded shadow" style="background-color: transparent;">
+            <div class="col-12 d-flex justify-content-center my-4 form-heading">
                 <span class="fs-4 fw-bold text-dark">Login</span>
             </div>
             <div class="col-12">
                 <form class="row text-dark" onsubmit="return submitForm(event)">
-                    <div class="col-12 mb-3 mt-5">
-                        <label for="inputEmail" class="form-label fw-bold">Email</label>
-                        <input type="email" name="username" class="form-control" id="inputEmail" placeholder="example@gmail.com">
+                    <div class="email">
+                        <input type="email" name="username" id="email" placeholder="">
+                        <label for="email">Email</label>
                     </div>
-                    <div class="col-12 mb-3">
-                        <label for="inputPassword" class="form-label fw-bold">Password</label>
-                        <div class="input-group mb-3">
-                            <input type="password" name="password" id="inputPassword" class="form-control border border-end-0" aria-describedby="passwordHelpBlock">
-                            <span class="input-group-text border border-start-0" id="basic-addon2" style="cursor: pointer; background-color: white;" onmouseover="this.style.backgroundColor='#e9ecef'" onmouseout="this.style.backgroundColor='white'"><i class="bi bi-eye d-none"></i><i class="bi bi-eye-slash"></i></span>
-                        </div>
-                        <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                    <div class="password">
+                        <input type="password" name="password" id="password" placeholder="">
+                        <label for="password">Password</label>
+                        <i class="bi bi-eye-slash"></i>
+                        <i class="bi bi-eye d-none"></i>
                     </div>
-                    <div class="col-12">
+                    <div class="col-12" style="margin-top: 30px;">
                         <button id="submitButton" class="btn btn-success rounded-pill W-100">
                             <span id="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
                             <span id="buttonText" role="status">Sign in</span>
@@ -78,21 +126,24 @@
     <script>
         const eye = document.querySelector('.bi-eye');
         const eyeSlash = document.querySelector('.bi-eye-slash');
-        const inputPassword = document.getElementById('inputPassword');
-        const inputEmail = document.getElementById('inputEmail');
-        const inputGroupText = document.getElementById('basic-addon2');
+        const inputPassword = document.getElementById('password');
+        const inputEmail = document.getElementById('email');
         const notice = document.getElementById('notice');
 
-        inputGroupText.addEventListener('click', function () {
+        eyeSlash.addEventListener('click', ()=>{
             if (eye.classList.contains('d-none')) {
-                eye.classList.remove('d-none');
                 eyeSlash.classList.add('d-none');
+                eye.classList.remove('d-none');
                 inputPassword.type = 'text';
-            } else {
-                eye.classList.add('d-none');
+            } 
+        });
+
+        eye.addEventListener('click', ()=>{
+            if (eyeSlash.classList.contains('d-none')) {
                 eyeSlash.classList.remove('d-none');
+                eye.classList.add('d-none');
                 inputPassword.type = 'password';
-            }
+            } 
         });
 
         async function submitForm(event) {
