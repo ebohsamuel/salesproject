@@ -111,14 +111,14 @@
 <body class="position-relative">
     <div id="opaque" class="position-absolute d-none bg-light" style="top: 0; left: 0; height: 100%; width: 100%; opacity: 0.3; z-index: 10000;"></div>
     <div class="container-fluid d-flex align-items-center justify-content-center" style="height: 100vh; background-color: transparent;">
-        <div class="row rounded shadow flex-column" style="background-color: transparent;">
-            <div class="col-12 d-flex justify-content-start form-heading" style="margin-top: 30px;">
+        <div class="row d-flex flex-column" style="background-color: transparent;">
+            <div class="col-12 col-md-8 d-flex justify-content-start align-self-center form-heading" style="margin-top: 30px;">
                 <span class="fw-bold text-dark" style="font-size: 30px;">Welcome Back!</span>
             </div>
-            <div class="col-12 d-flex justify-content-start mb-5 form-heading">
+            <div class="col-12 col-md-8 d-flex justify-content-start align-self-center mb-5 form-heading">
                 <span class="text-secondary">Manage sales, purchase and expenses, all in one place.</span>
             </div>
-            <div class="col-12">
+            <div class="col-12 col-md-8 align-self-center">
                 <form class="row text-dark" onsubmit="return submitForm(event)">
                     <div class="email">
                         <input type="email" name="username" id="email" placeholder="">
@@ -178,7 +178,7 @@
             const form = document.querySelector('form');
 
             if (inputEmail.value === '' || inputPassword.value === '') {
-                notice.innerHTML = 'You must enter both email and password to login.';
+                notice.innerHTML = 'please enter your email and password.';
                 spinner.classList.add('d-none'); // Hide spinner
                 buttonText.style.display = ''; // Show text
                 document.getElementById('opaque').classList.add('d-none');
