@@ -16,52 +16,52 @@
 {% endblock %}
 
 {% block content %}
-    {% if products %}
-        <div class="container-fluid position-relative">
-            <div class="row mb-4 g-3"> 
-                <div class="col-12 col-md-6 d-flex justify-content-center">
-                    <input style="max-width: 250px;" id="searchInput" type="text" class="form-control" placeholder="Search Product" aria-label="Search">
+    <div class="container-fluid position-relative">
+        <div class="row mb-4 g-3"> 
+            <div class="col-12 col-md-6 d-flex justify-content-center">
+                <input style="max-width: 250px;" id="searchInput" type="text" class="form-control" placeholder="Search Product" aria-label="Search">
+            </div>
+            <div class="col-12 col-md-6 d-flex justify-content-center">
+                <span class="btn btn-outline-secondary" style="width: 250px;" data-bs-toggle="modal" data-bs-target="#productregistration">Add Product <i class="bi bi-plus"></i></span>
+            </div>
+        </div>
+        <!-- modal for adding new product -->
+        <div class="modal fade" id="productregistration" tabindex="-1" data-bs-backdrop="true" data-bs-keyboard="false" aria-labelledby="productRegistrationLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="productRegistrationLabel">Enter New Product</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="col-12 col-md-6 d-flex justify-content-center">
-                    <span class="btn btn-outline-secondary" style="width: 250px;" data-bs-toggle="modal" data-bs-target="#productregistration">Add Product <i class="bi bi-plus"></i></span>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <form id="myForm" class="row text-start g-3">
+                            <div class="col-12">
+                                <label for="productName" class="form-label fw-medium">Product Name <span class="text-danger">*</span></label>
+                                <input type="text" name="product_name" class="form-control" id="productName" required>
+                            </div>
+                            <div class="col-12">
+                                <div style="border:2px dashed; cursor: pointer;" class="w-100 d-flex flex-column justify-content-center align-items-center" id="upload-container">
+                                    <p>Drag & Drop or Click or Paste an Image Here</p>
+                                    <input type="file" name="image_data" id="fileInput" accept="image/*" style="display: none;">
+                                    <p id="file-name"></p>
+                                </div>
+                                <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="submitButton" type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">
+                        <span id="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                        <span id="buttonText">Submit</span>
+                    </button>
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                </div>
                 </div>
             </div>
-            <!-- modal for adding new product -->
-            <div class="modal fade" id="productregistration" tabindex="-1" data-bs-backdrop="true" data-bs-keyboard="false" aria-labelledby="productRegistrationLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h1 class="modal-title fs-5" id="productRegistrationLabel">Enter New Product</h1>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="container-fluid">
-                            <form id="myForm" class="row text-start g-3">
-                                <div class="col-12">
-                                    <label for="productName" class="form-label fw-medium">Product Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="product_name" class="form-control" id="productName" required>
-                                </div>
-                                <div class="col-12">
-                                    <div style="border:2px dashed; cursor: pointer;" class="w-100 d-flex flex-column justify-content-center align-items-center" id="upload-container">
-                                        <p>Drag & Drop or Click or Paste an Image Here</p>
-                                        <input type="file" name="image_data" id="fileInput" accept="image/*" style="display: none;">
-                                        <p id="file-name"></p>
-                                    </div>
-                                    <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="submitButton" type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">
-                            <span id="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
-                            <span id="buttonText">Submit</span>
-                        </button>
-                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-                </div>
-            </div>
+        </div>
+        {% if products %}
             <div class="row mx-2 g-3 justify-content-center">
                 {% for product in products %}
                     <!-- product update button -->
@@ -69,17 +69,17 @@
                         <div class="card shadow" style="transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-10px)'" onmouseout="this.style.transform='translateY(0px)'">
                             <img src="data:image/jpeg;base64,{{ product.image_data }}" class="card-img-top img-fluid" style="height: 150px;" alt="...">
                             <div class="card-body">
-                              <h5 class="card-title text-secondary fw-semibold" style="font-size: small;">{{ product.product_name }}</h5>
+                            <h5 class="card-title text-secondary fw-semibold" style="font-size: small;">{{ product.product_name }}</h5>
                             </div>
                         </div>
                     </div>
                     <!-- modal for product update -->
                     <div class="modal fade update" id="productUpdate{{ product.id }}" tabindex="-1" aria-labelledby="productUpdateLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
-                          <div class="modal-content">
+                        <div class="modal-content">
                             <div class="modal-header">
-                              <h1 class="modal-title fs-5" id="productUpdateLabel">Update Product</h1>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <h1 class="modal-title fs-5" id="productUpdateLabel">Update Product</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
                                 <div class="container-fluid">
@@ -111,15 +111,16 @@
                                 </button>
                                 <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
                             </div>
-                          </div>
+                        </div>
                         </div>
                     </div>    
                 {% endfor %}
             </div>
-        </div>
-    {% else %}
-        <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered products</h3></div>
-    {% endif %}
+        {% else %}
+            <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered products</h3></div>
+        {% endif %}
+    </div>
+    
 {% endblock %}
 
 {% block scripts %}

@@ -3,61 +3,61 @@
 {% block title %} Expense {% endblock %}
 
 {% block content %}
-    {% if expenses %}
-        <div class="container-fluid">
-            <!-- modal for adding new expenses -->
-            <div class="modal fade" id="expenseregistration" tabindex="-1" data-bs-backdrop="true" data-bs-keyboard="false" aria-labelledby="exspenseLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="exspenseLabel">Enter Expense</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="container-fluid">
+        <!-- modal for adding new expenses -->
+        <div class="modal fade" id="expenseregistration" tabindex="-1" data-bs-backdrop="true" data-bs-keyboard="false" aria-labelledby="exspenseLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exspenseLabel">Enter Expense</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <!-- modal form -->
+                            <form id="myForm" class="row text-start g-3">                                      
+                                <div class="col-12">
+                                    <label for="expenseDate" class="form-label fs-5 text-secondary fw-medium">Date of Expense</label>
+                                    <input type="date" name="expense_date" class="form-control" id="expenseDate" readonly>
+                                </div>
+                                <div class="col-12">
+                                    <label for="expenseAmount" class="form-label fs-5 text-secondary fw-medium">Expense Amount</label>
+                                    <input type="number" name="amount" class="form-control" id="expenseAmount">
+                                </div>
+                                <div class="col-12">
+                                    <label for="description" class="form-label fs-5 text-secondary fw-medium">Description</label>
+                                    <textarea class="form-control" name="description" placeholder="describe your expenses here" id="description" style="height: 100px"></textarea>
+                                    <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                </div>
+                            </form>
                         </div>
-                        <div class="modal-body">
-                            <div class="container-fluid">
-                                <!-- modal form -->
-                                <form id="myForm" class="row text-start g-3">                                      
-                                    <div class="col-12">
-                                        <label for="expenseDate" class="form-label fs-5 text-secondary fw-medium">Date of Expense</label>
-                                        <input type="date" name="expense_date" class="form-control" id="expenseDate" readonly>
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="expenseAmount" class="form-label fs-5 text-secondary fw-medium">Expense Amount</label>
-                                        <input type="number" name="amount" class="form-control" id="expenseAmount">
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="description" class="form-label fs-5 text-secondary fw-medium">Description</label>
-                                        <textarea class="form-control" name="description" placeholder="describe your expenses here" id="description" style="height: 100px"></textarea>
-                                        <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button id="submitButton" type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">
-                                <span id="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
-                                <span id="buttonText">Submit</span>
-                            </button>
-                            <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
-                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="submitButton" type="button" class="btn btn-primary rounded-pill" onclick="submitForm()">
+                            <span id="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                            <span id="buttonText">Submit</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
-            
-            <div class="row g-4">
-                <div class="col-12 col-xl-4">
-                    <input style="max-width: 300px;" id="dateSearch" type="text" class="form-control" placeholder="Date" aria-label="Date">
-                    <div id="notice2" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
-                </div>
-                <div class="col-12 col-xl-4">
-                    <button id="searchButton" class="btn btn-outline-secondary" style="width: 300px;">
-                        <span id="spinnerSearch" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
-                        <span id="buttonTextSearch" role="status">Search</span>
-                    </button>
-                </div>
-                <div class="col-12 col-xl-4">
-                    <span class="btn btn-outline-secondary" style="width: 300px;" data-bs-toggle="modal" data-bs-target="#expenseregistration">Add Expenses <i class="bi bi-plus"></i></span>
-                </div> 
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-12 col-xl-4">
+                <input style="max-width: 300px;" id="dateSearch" type="text" class="form-control" placeholder="Date" aria-label="Date">
+                <div id="notice2" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+            </div>
+            <div class="col-12 col-xl-4">
+                <button id="searchButton" class="btn btn-outline-secondary" style="width: 300px;">
+                    <span id="spinnerSearch" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                    <span id="buttonTextSearch" role="status">Search</span>
+                </button>
+            </div>
+            <div class="col-12 col-xl-4">
+                <span class="btn btn-outline-secondary" style="width: 300px;" data-bs-toggle="modal" data-bs-target="#expenseregistration">Add Expenses <i class="bi bi-plus"></i></span>
+            </div>
+            {% if expenses %}
                 <div class="col-12">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
@@ -124,11 +124,11 @@
                         {% endfor %}
                     </div>
                 </div>
-            </div>
-        </div> 
-    {% else %}
-        <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered expense</h3></div>
-    {% endif %}
+            {% else %}
+                <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered expense</h3></div>
+            {% endif %}
+        </div>
+    </div> 
 {% endblock %}
 
 {% block scripts %}
