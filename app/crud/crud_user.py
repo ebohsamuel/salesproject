@@ -6,8 +6,8 @@ from app import models
 from app.schema import schema_user
 import os
 
-scheme = "bcrypt"
-admin_email = "eng1102493@gmail.com"
+scheme = os.getenv("scheme")
+admin_email = os.getenv("admin_email")
 
 
 pwd_context = CryptContext(schemes=[f"{scheme}"], deprecated="auto")

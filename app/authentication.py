@@ -13,8 +13,8 @@ from app.schema import schema_token, schema_user
 import os
 
 template = Jinja2Templates(directory="app/templates")
-SECRET_KEY = "ec74be764e3ff9ca044d6b13094bbcfad3c70e190410c01c233b0428a5ce67a5"
-ALGORITHM = "HS256"
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 
 
 async def get_db():

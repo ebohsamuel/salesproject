@@ -28,11 +28,11 @@ app.include_router(login.router)
 app.include_router(navigation.router)
 app.include_router(logout.router)
 
-admin_email = "eng1102493@gmail.com"
-admin_password = "24bennSOO"
-user_category = "manager"
-phone = "08137908237"
-fullname = "Samuel Eboh"
+admin_email = os.getenv("admin_email")
+admin_password = os.getenv("admin_password")
+user_category = os.getenv("user_category")
+phone = os.getenv("phone")
+fullname = os.getenv("fullname")
 
 
 @app.on_event("startup")
