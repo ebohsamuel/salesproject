@@ -3,80 +3,79 @@
 {% block title %} User {% endblock %}
 
 {% block content %}
-    {% if users %}
-        <div class="container-fluid position-relative">
-            <!-- modal for adding new user -->
-            <div class="modal fade" id="staffregistration" tabindex="-1" aria-labelledby="staffregistrationlabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h1 class="modal-title fs-5" id="staffregistrationlabel">Staff Registration</h1>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <div class="container-fluid position-relative">
+        <!-- modal for adding new user -->
+        <div class="modal fade" id="staffregistration" tabindex="-1" aria-labelledby="staffregistrationlabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-fullscreen-md-down modal-lg">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staffregistrationlabel">Staff Registration</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-fluid">
+                        <form class="row text-start g-3">
+                            <div class="col-12">
+                                <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                                <label for="staffEmail" class="form-label fw-medium">Email <span class="text-danger">*</span></label>
+                                <input type="email" name="email" class="form-control" id="staffEmail" placeholder="example@gmail.com" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="staffPassword" class="form-label fw-medium">Password <span class="text-danger">*</span></label>
+                                <input type="password" name="password" class="form-control" id="staffPassword" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="staffName" class="form-label fw-medium">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" name="fullname" class="form-control" id="staffName" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="staffPhone" class="form-label fw-medium">Phone  <span class="text-danger">*</span></label>
+                                <input type="text" name="phone" class="form-control" id="staffPhone" required>
+                            </div>
+                            <div class="col-12">
+                                <label for="userCategory" class="form-label fw-medium">User Category <span class="text-danger">*</span></label>
+                                <select id="userCategory" name="user_category" class="form-select" required>
+                                    <option value="" selected disabled>Choose...</option>
+                                    <option value="manager">Manager</option>                                   
+                                    <option value="staff">Staff</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label for="resident" class="form-label fw-medium">Resident</label>
+                                <input type="text" name="address" class="form-control" id="resident">
+                            </div>
+                            <div class="col-12">
+                                <label for="nextOfkin" class="form-label fw-medium">Next of Kin</label>
+                                <input type="text" name="next_of_kin" class="form-control" id="nextOfkin">
+                            </div>
+                            <div class="col-12">
+                                <label for="nextOfkinPhone" class="form-label fw-medium">Next of Kin Phone</label>
+                                <input type="text" name="phone_next_of_kin" class="form-control" id="nextOfkinPhone">
+                                <div id="notice1" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
+                            </div>
+                        </form>
                     </div>
-                    <div class="modal-body">
-                        <div class="container-fluid">
-                            <form class="row text-start g-3">
-                                <div class="col-12">
-                                    <div id="notice" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
-                                    <label for="staffEmail" class="form-label fw-medium">Email <span class="text-danger">*</span></label>
-                                    <input type="email" name="email" class="form-control" id="staffEmail" placeholder="example@gmail.com" required>
-                                </div>
-                                <div class="col-12">
-                                    <label for="staffPassword" class="form-label fw-medium">Password <span class="text-danger">*</span></label>
-                                    <input type="password" name="password" class="form-control" id="staffPassword" required>
-                                </div>
-                                <div class="col-12">
-                                    <label for="staffName" class="form-label fw-medium">Full Name <span class="text-danger">*</span></label>
-                                    <input type="text" name="fullname" class="form-control" id="staffName" required>
-                                </div>
-                                <div class="col-12">
-                                    <label for="staffPhone" class="form-label fw-medium">Phone  <span class="text-danger">*</span></label>
-                                    <input type="text" name="phone" class="form-control" id="staffPhone" required>
-                                </div>
-                                <div class="col-12">
-                                    <label for="userCategory" class="form-label fw-medium">User Category <span class="text-danger">*</span></label>
-                                    <select id="userCategory" name="user_category" class="form-select" required>
-                                        <option value="" selected disabled>Choose...</option>
-                                        <option value="manager">Manager</option>                                   
-                                        <option value="staff">Staff</option>
-                                    </select>
-                                </div>
-                                <div class="col-12">
-                                    <label for="resident" class="form-label fw-medium">Resident</label>
-                                    <input type="text" name="address" class="form-control" id="resident">
-                                </div>
-                                <div class="col-12">
-                                    <label for="nextOfkin" class="form-label fw-medium">Next of Kin</label>
-                                    <input type="text" name="next_of_kin" class="form-control" id="nextOfkin">
-                                </div>
-                                <div class="col-12">
-                                    <label for="nextOfkinPhone" class="form-label fw-medium">Next of Kin Phone</label>
-                                    <input type="text" name="phone_next_of_kin" class="form-control" id="nextOfkinPhone">
-                                    <div id="notice1" class="text-danger fw-semibold" style="font-family: sans-serif;"></div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
-                        <button type="button" onclick="submitForm()" class="btn btn-primary rounded-pill" id="staffRegistrationButton">
-                            <span id="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
-                            <span id="buttonText">Submit</span>
-                        </button>
-                    </div>
-                  </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Close</button>
+                    <button type="button" onclick="submitForm()" class="btn btn-primary rounded-pill" id="staffRegistrationButton">
+                        <span id="spinner" class="spinner-border spinner-border d-none" aria-hidden="true"></span>
+                        <span id="buttonText">Submit</span>
+                    </button>
+                </div>
                 </div>
             </div>
-            <div class="row g-4">
-                <div class="col-12 col-md-6 d-flex justify-content-center">
-                    <span class="btn btn-outline-secondary" style="width: 300px;" data-bs-toggle="modal" data-bs-target="#staffregistration">Add User <i class="bi bi-plus"></i></span>
-                </div>
-
+        </div>
+        <div class="row g-4">
+            <div class="col-12 col-md-6 d-flex justify-content-center">
+                <span class="btn btn-outline-secondary" style="width: 300px;" data-bs-toggle="modal" data-bs-target="#staffregistration">Add User <i class="bi bi-plus"></i></span>
+            </div>
+            {% if users %}
                 <div class="col-12">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead class="table-dark">
-                              <tr>
+                            <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Full Name</th>
                                 <th scope="col">Email</th>
@@ -87,10 +86,10 @@
                                 <th scope="col">Next of Kin</th>
                                 <th scope="col">Phone of Next of Kin</th>
                                 <th scope="col"></th>
-                              </tr>
+                            </tr>
                             </thead>
                             <tbody class="table-group-divider">
-                              {% for user in users %}
+                            {% for user in users %}
                                 <tr>
                                     <th scope="row">{{ loop.index }}</th>
                                     <td>{{ user.fullname }}</td>
@@ -103,7 +102,7 @@
                                     <td>{{ user.phone_next_of_kin if user.phone_next_of_kin is not none else "" }}</td>
                                     <td><span selector="updateButton" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#user{{ user.id }}">Update</span></td>                                              
                                 </tr>
-                              {% endfor %}
+                            {% endfor %}
                             </tbody>
                         </table>
                         {% for user in users %}
@@ -196,11 +195,11 @@
                         {% endfor %}
                     </div>
                 </div>
-            </div>
+            {% else %}
+                <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered user</h3></div>
+            {% endif %}   
         </div>
-    {% else %}
-        <div class="container-fluid"><h3 class="fw-bold text-center" style="color: crimson; font-family: sans-serif;">No registered user</h3></div>
-    {% endif %}
+    </div>
 {% endblock %}
 
 {% block scripts %}
