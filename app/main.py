@@ -64,3 +64,8 @@ async def on_startup():
 @app.get("/")
 async def login(request: Request):
     return template.TemplateResponse("login.html", {"request": request})
+
+
+@app.get("/uptime")
+async def check_status():
+    return {"status": "ok"}
