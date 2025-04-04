@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, Response
 from app.authentication import template, get_db, get_current_active_user
 from app.crud import crud_user
 from app.router import register_and_update_product, new_purchase_and_stock, update_purchase, update_stock, make_sales
@@ -69,3 +69,8 @@ async def login(request: Request):
 @app.get("/uptime")
 async def check_status():
     return {"status": "ok"}
+
+
+@app.head("/uptime")
+def head_uptime():
+    return Response(headers={"X-Status": "ok"})
