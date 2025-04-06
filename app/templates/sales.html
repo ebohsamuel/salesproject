@@ -302,6 +302,16 @@
                 count.innerHTML = x;
             }
             inputEventListernerFunction();
+            let data = JSON.parse(localStorage.getItem('data')) || [];
+
+            cardContainers.forEach(container => {
+                const productName = container.querySelector('.card-title').innerHTML.trim();
+                let exist = data.some(item => item.product_name === productName);
+                if (exist) {
+                    container.querySelector('a[role="button"]').classList.add('disabled');
+                }
+            });
+            
         });
 
         function inputEventListernerFunction() {
