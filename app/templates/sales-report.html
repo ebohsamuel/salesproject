@@ -104,6 +104,17 @@
         const filterSearch = document.getElementById('filterSearch');
         const startDate = document.getElementById('startDate');
         const endDate = document.getElementById('endDate')
+        const collapse = document.getElementById('collapseExample');
+
+        collapse.addEventListener('shown.bs.collapse', ()=>{
+            startDate.addEventListener('input', ()=>{
+                endDate.min = startDate.value;
+            });
+            endDate.addEventListener('input', ()=>{
+                startDate.max = endDate.value;
+            });
+        });
+        
 
         filterSearch.addEventListener('click', async ()=>{
             const start_date = startDate.value.trim();
