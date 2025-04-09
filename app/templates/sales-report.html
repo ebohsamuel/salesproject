@@ -6,17 +6,35 @@
     {% if order_items %}
         <div class="container-fluid position-relative">
             <div class="row g-4 dashboardRow">
-                <div class="col-12 col-xl-2">
-                    <span id="pdfButton" class="btn btn-outline-secondary" style="width: 150px;">PDF</span>
+                <div class="col-12 col-xl-3">
+                    <span id="pdfButton" class="btn btn-outline-secondary" style="width: 250px;">PDF</span>
                 </div>
-                <div class="col-12 col-xl-2">
-                    <span id="receiptButton" class="btn btn-outline-secondary" style="width: 150px;">Receipt</span>
+                <div class="col-12 col-xl-3 d-flex flex-row">
+                    <span id="receiptButton" class="btn btn-outline-secondary" style="width: 250px;">Receipt</span>
+                    <a class="fs-5 d-block align-self-center ms-3" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                        <i class="bi bi-funnel-fill text-success"></i>
+                    </a>
                 </div>
-                <div class="col-12 col-xl-4 d-flex flex-row">
-                    <span class="me-2 text-success fw-semibold d-flex align-items-center">Total Amount</span><div id="totalAmount" class="text-success fw-bold d-flex align-items-center" style="width: fit-content;">0</div>
+                <div class="collapse" id="collapseExample">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="startDate" class="form-label text-success" style="font-weight: 600;">Start Date</label>
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="endDate" class="form-label text-success" style="font-weight: 600;">End Date</label>
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <span class="w-100 btn btn-outline-secondary" id="filterSearch">Filter</span>
+                        </div>             
+                    </div>
                 </div>
-                <div class="col-12 col-xl-4 d-flex flex-row">
-                    <span class="me-2 text-success fw-semibold d-flex align-items-center">Total Quantity</span><div id="totalQuantity" class="text-success fw-bold d-flex align-items-center" style="width: fit-content;">0</div>
+                <div class="col-12 col-xl-3 d-flex flex-row">
+                    <span class="me-2 text-success fw-semibold d-flex align-items-center">Total Amount :</span><div id="totalAmount" class="text-success fw-bold d-flex align-items-center" style="width: fit-content;">0</div>
+                </div>
+                <div class="col-12 col-xl-3 d-flex flex-row">
+                    <span class="me-2 text-success fw-semibold d-flex align-items-center">Total Quantity :</span><div id="totalQuantity" class="text-success fw-bold d-flex align-items-center" style="width: fit-content;">0</div>
                 </div>
                 <div class="col-12 col-xl-4">
                     <input style="max-width: 300px;" id="dateSearch" type="text" class="form-control" placeholder="Date" aria-label="Date">
@@ -83,6 +101,44 @@
         const searchButton = document.getElementById('searchButton');
         const totalAmount = document.getElementById('totalAmount');
         const totalQuantity = document.getElementById('totalQuantity');
+        const filterSearch = document.getElementById('filterSearch');
+        const startDate = document.getElementById('startDate');
+        const endDate = document.getElementById('endDate')
+
+        filterSearch.addEventListener('click', async ()=>{
+            const start_date = startDate.value.trim();
+            const end_date = endDate.value.trim();
+            document.getElementById('opaque').classList.remove('d-none');
+            if (start_date === '' || end_date === '') {
+                document.getElementById('notice2').innerHTML = "please fill in the start and end date";
+                document.getElementById('opaque').classList.add('d-none');
+                return;
+            } else {
+                document.getElementById('notice2').innerHTML = '';
+            }
+
+            const url = `/sales-filter?start_date=${encodeURIComponent(start_date)}&end_date=${encodeURIComponent(end_date)}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`http error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                const tableArray = result.data;
+                startDate.value = '';
+                endDate.value = '';
+                createTableFunction(tableArray);
+                document.getElementById('opaque').classList.add('d-none');
+
+            } catch (error) {
+                document.getElementById('opaque').classList.add('d-none');
+                alert(error);
+            }               
+
+        });
 
         const yearPattern = /^\d{4}$/;  // YYYY
         const yearMonthPattern = /^\d{4}-(0[1-9]|1[0-2])$/;  // YYYY-MM

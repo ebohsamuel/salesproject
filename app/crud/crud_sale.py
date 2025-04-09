@@ -118,6 +118,27 @@ async def get_order_item_by_order_date(db: AsyncSession, date_str: str):
     return result.all()
 
 
+async def get_order_item_between_order_date(db: AsyncSession, start_date: str, end_date: str):
+    start = datetime.strptime(start_date, "%Y-%m-%d").date()
+    end = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+    subquery = (
+        select(models.Order.id, models.Order.order_date)
+        .filter(models.Order.order_date.between(start, end))
+        .order_by(desc(models.Order.order_date))
+        .subquery()
+    )
+    result = await db.scalars(
+        select(models.OrderItem)
+        .where(models.OrderItem.order_id.in_(select(subquery.c.id)))
+        .options(
+            selectinload(models.OrderItem.order).selectinload(models.Order.user),
+            selectinload(models.OrderItem.product)
+        ).order_by(desc(models.OrderItem.order_id))
+    )
+    return result.all()
+
+
 def create_new_order_item(db: AsyncSession, item: dict, order_id: int, product_id: int):
     db_order_item = models.OrderItem(**item, order_id=order_id, product_id=product_id)
     db.add(db_order_item)

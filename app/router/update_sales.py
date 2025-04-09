@@ -46,6 +46,27 @@ async def sales_list(date_str: str, db: AsyncSession = Depends(get_db)):
     return {"data": items}
 
 
+@router.get("/sales-filter")
+async def sales_list(start_date: str, end_date: str, db: AsyncSession = Depends(get_db)):
+    sales = await crud_sale.get_order_item_between_order_date(db, start_date, end_date)
+    items = []
+    for item in sales:
+        items.append({
+            "id": item.id,
+            "order_date": item.order.order_date,
+            "product_name": item.product.product_name,
+            "user": item.order.user.fullname,
+            "customer_name": item.order.customer_name,
+            "quantity": item.quantity,
+            "payment_method": item.order.payment_method,
+            "price": item.price,
+            "order_id": item.order_id
+        })
+        await asyncio.sleep(0)
+
+    return {"data": items}
+
+
 @router.post("/sales/update")
 async def sales_update_submit(
         order_item_id: int = Form(),
