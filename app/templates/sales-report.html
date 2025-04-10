@@ -109,9 +109,16 @@
         collapse.addEventListener('shown.bs.collapse', ()=>{
             startDate.addEventListener('input', ()=>{
                 endDate.min = startDate.value;
+                let date = new Date(startDate.value);
+                date.setDate(date.getDate() + 365);
+                endDate.max = date.toISOString().split("T")[0];
             });
             endDate.addEventListener('input', ()=>{
                 startDate.max = endDate.value;
+                let date = new Date(endDate.value);
+                date.setDate(date.getDate() - 365);
+                startDate.min = date.toISOString().split("T")[0];
+
             });
         });
         
