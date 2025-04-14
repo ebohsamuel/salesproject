@@ -106,12 +106,13 @@
         const endDate = document.getElementById('endDate')
         const collapse = document.getElementById('collapseExample');
 
+        startDate.max = new Date().toISOString().split("T")[0];
+        endDate.max = new Date().toISOString().split("T")[0];
+
         collapse.addEventListener('shown.bs.collapse', ()=>{
             startDate.addEventListener('input', ()=>{
                 endDate.min = startDate.value;
-                let date = new Date(startDate.value);
-                date.setDate(date.getDate() + 365);
-                endDate.max = date.toISOString().split("T")[0];
+                endDate.max = new Date().toISOString().split("T")[0];
             });
             endDate.addEventListener('input', ()=>{
                 startDate.max = endDate.value;
