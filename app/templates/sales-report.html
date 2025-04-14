@@ -115,7 +115,7 @@
                 endDate.max = new Date().toISOString().split("T")[0];
             });
             endDate.addEventListener('input', ()=>{
-                startDate.max = endDate.value;
+                startDate.max = endDate.value || new Date().toISOString().split("T")[0];
                 let date = new Date(endDate.value);
                 date.setDate(date.getDate() - 365);
                 startDate.min = date.toISOString().split("T")[0];
