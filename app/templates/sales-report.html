@@ -147,8 +147,6 @@
                 const result = await response.json();
                 
                 const tableArray = result.data;
-                startDate.value = '';
-                endDate.value = '';
                 createTableFunction(tableArray);
                 document.getElementById('opaque').classList.add('d-none');
 
