@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Request, Depends, Response
-from app.authentication import template, get_db, get_current_active_user
+from fastapi import FastAPI, Request, Response
+from starlette.responses import RedirectResponse
+from app.authentication import template, get_db, NotAuthenticatedException
 from app.crud import crud_user
 from app.router import register_and_update_product, new_purchase_and_stock, update_purchase, update_stock, make_sales
 from app.router import update_sales, new_expense, update_expense, purchase_report, sales_report, expense_report
@@ -74,3 +75,8 @@ async def check_status():
 @app.head("/uptime")
 def head_uptime():
     return Response(headers={"X-Status": "ok"})
+
+
+@app.exception_handler(NotAuthenticatedException)
+async def not_authenticated_exception_handler(request: Request, exc: NotAuthenticatedException):
+    return RedirectResponse(url="/")

@@ -22,6 +22,11 @@ async def get_db():
         yield session
 
 
+class NotAuthenticatedException(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=401, detail="Not authenticated")
+
+
 async def authenticate_user(db: AsyncSession, email: str, password: str):
     user_data = await crud_user.get_user_by_email(db, email)
     if not user_data:
@@ -42,12 +47,15 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return encoded_jwt
 
 
-async def get_current_user(access_token: str = Cookie(), db: AsyncSession = Depends(get_db)):
+async def get_current_user(access_token: str | None = Cookie(default=None), db: AsyncSession = Depends(get_db)):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
+
+    if access_token is None:
+        raise NotAuthenticatedException()
 
     token = access_token[len("Bearer "):]
 
