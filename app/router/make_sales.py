@@ -50,6 +50,8 @@ async def add_sales(data: Data, db: AsyncSession = Depends(get_db)):
     order = data.order
     items = data.items
 
+    total = 0.0
+
     # before registering sales, we are going to check if the quantities paid for by customers are available in stock
     for item in items:
         product = await crud_product.get_product_by_product_name(db, item.product_name)
@@ -66,6 +68,13 @@ async def add_sales(data: Data, db: AsyncSession = Depends(get_db)):
                 status_code=400,
                 detail="Cannot proceed with the transaction because of change in price. Please cancel transaction"
             )
+        total = total + item.price * item.quantity
+
+    if total != order.total_amount:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot proceed with the transaction due to fraudulent transaction. Please cancel transaction"
+        )
 
     # if there are stocks available for sales and there are no price difference, then proceed with the sales
     user = await crud_user.get_user_by_email(db, order.user_email)
